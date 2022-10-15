@@ -3,76 +3,30 @@ import csv
 
 class BoardGenerator:
     def __init__(self):
-        self._dataset_size = 9000000 # number of rows in the dataset
+        self._dataset_size = 413422 # number of rows in the dataset
         self._row_char_count = 165 # number of characters in a given row
 
-        # TODO make more uniform difficulty bins
+        # key: number of clues, value: number of boards in dataset
         self._bins = {
-            # hard
-            4: 8,
-            5: 19,
-            6: 44,
-            7: 116,
-            8: 219,
-            9: 407,
-            10:	689,
-            11:	1145,
-            12:	1787,
-            13:	2831,
-            14:	4221,
-            15:	6143,
-            16:	8762,
-            17:	12346,
-            # semi-hard
-            18:	17171,
-            19:	23729,
-            20:	32134,
-            21:	43262,
-            22:	57638,
-            23:	75965,
-            24:	99382,
-            25:	129128,
-            # medium
-            26:	167046,
-            27:	215023,
-            28:	274142,
-            29:	347726,
-            30:	438006,
-            31:	548200,
-            32:	681285,
-            33:	842069,
-            34:	1035163,
-            35:	1263725,
-            36:	1533344,
-            37:	1848603,
-            38:	2212785,
-            39:	2628705,
-            # easy
-            40:	3099521,
-            41:	3623097,
-            42:	4196429,
-            43:	4810686,
-            44:	5452894,
-            45:	6103704,
-            46:	6738043,
-            47:	7329120,
-            48:	7847627,
-            49:	8271822,
-            50:	8586578,
-            51:	8795076,
-            52:	8913893,
-            53:	8970653,
-            54:	8992199,
-            55:	8998503,
-            56:	8999800,
-            57:	8999982,
-            58:	9000000
-        }
-
+            30: 208498, 
+            29: 118817, 
+            28: 56760, 
+            27: 21546, 
+            26: 6304, 
+            25: 1297, 
+            24: 182, 
+            23: 18, 
+            22: 0  # end value for bin edges
+            }
+        
     def generate_board(self, difficulty_begin, difficulty_end):
-        # get offset
+        assert difficulty_begin <= difficulty_end
+        assert difficulty_begin > 22
+        assert difficulty_end < 31
+
+        end = self._dataset_size - self._bins[difficulty_begin-1]
         begin = self._dataset_size - self._bins[difficulty_end]
-        end = self._dataset_size - self._bins[difficulty_begin]
+        
         offset = random.randrange(begin, end)
 
         dataset = open('./data/initial_boards/sudoku_dataset.csv')
