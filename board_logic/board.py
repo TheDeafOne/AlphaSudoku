@@ -1,3 +1,4 @@
+from testing_board_indexing import generate_board
 from .board_indexing import BoardIndexing
 
 class Board:
@@ -8,7 +9,9 @@ class Board:
 
         self._digits = set('123456789')
 
+        # board represented as a string
         self._string_board = ''
+
         # initial group board
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
 
@@ -16,7 +19,6 @@ class Board:
         self._board = {}
         
         
-
     def set_board(self, board):
         # parse given board and assign group board accordingly
         parsed_board = self._parse_board(board)
@@ -43,6 +45,7 @@ class Board:
             # could not parse board
             return False
     
+
     def _create_group_board(self):
         for cell_index in self._board:
             cell = self._board[cell_index]
@@ -56,7 +59,6 @@ class Board:
                 
                 self._group_board[cell_index] = set(self._board[cell_index])
 
-        
 
     def get_board(self):
         return self._board
@@ -70,6 +72,8 @@ class Board:
     def get_board_2D(self):
         # convert 1D string array into 2D 9x9 array
         return [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
-
+    
     def new_board(self):
+        self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
+        self.set_board(generate_board())
         pass

@@ -19,7 +19,7 @@ class BoardGenerator:
             22: 0  # end value for bin edges
             }
         
-    def generate_board(self, difficulty_begin, difficulty_end):
+    def generate_board(self, difficulty_begin=23, difficulty_end=30):
         assert difficulty_begin <= difficulty_end
         assert difficulty_begin > 22
         assert difficulty_end < 31

@@ -1,6 +1,6 @@
-from logic.board_indexing import BoardIndexing
-from logic.board import Board
-from logic.board_generator import BoardGenerator
+from board_logic.board_indexing import BoardIndexing
+from board_logic.board import Board
+from board_logic.board_generator import BoardGenerator
 
 board_indexes = BoardIndexing()
 board = Board()
