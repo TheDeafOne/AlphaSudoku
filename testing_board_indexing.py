@@ -69,15 +69,15 @@ if __name__ == '__main__':
     # generate_board()
     
 
-    # generator.generate_board(4,10)
+    # generator.generate_board(23,)
     # # generator.read_sudoku()
-    new_board = generator.generate_board(4,10)[0]
+    new_board = generator.generate_board(30,30)[0]
 
-    print(new_board)
-    board.set_board(new_board)
-    val = board.get_group_board()
-    [print(row) for row in board.get_board_2D()]
-    [print(row, val[row]) for row in val]
+    print(new_board.count('0'))
+    # board.set_board(new_board)
+    # val = board.get_group_board()
+    # [print(row) for row in board.get_board_2D()]
+    # [print(row, val[row]) for row in val]
     
     # print(board_indexes.get_cell_indexes())
     # [print(row) for row in board_indexes.get_peer_indexes()]
