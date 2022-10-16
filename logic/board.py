@@ -1,11 +1,12 @@
 from .board_indexing import BoardIndexing
 
+import json
 class Board:
     def __init__(self):
-        board_indexes = BoardIndexing()
-        self.cell_indexes = board_indexes.get_cell_indexes()
-        self.peer_indexes = board_indexes.get_peer_indexes()
-
+        with open("../data/cells.txt") as cells, open("../data/peers.txt") as peers:
+            self.cell_indexes = json.load(cells)["cells"]
+            self.peer_indexes = json.load(peers)
+        
         self._digits = set('123456789')
 
         self._string_board = ''

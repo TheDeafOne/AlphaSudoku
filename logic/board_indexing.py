@@ -1,3 +1,5 @@
+import json
+
 class BoardIndexing:
     def __init__(self):
         rows = '123456789'
@@ -24,8 +26,18 @@ class BoardIndexing:
         self._units = dict((cell, [unit for unit in unit_list if cell in unit]) for cell in self._cells)
 
         # a dictionary where the keys are all possible cell indexes (A1 ... I9) and the values are that cell's distinct peers
-        self._peers = dict((cell, set(sum(self._units[cell],[])) - set([cell])) for cell in self._cells)
+        self._peers = dict((cell, list(set(sum(self._units[cell],[])) - set([cell]))) for cell in self._cells)
 
+        cells = {
+            "cells": self._cells
+        }
+        with open("../data/cells.txt", "w+") as f:
+            f.write(json.dumps(cells))
+        with open("../data/units.txt", "w+") as f:
+            f.write(json.dumps(self._units))
+        with open("../data/peers.txt", "w+") as f:
+            f.write(json.dumps(self._peers))
+            
     def _cross(self, A, B):
         # this takes the cross of A and B, assuming their elements are strings
         return [a + b for a in A for b in B] 
