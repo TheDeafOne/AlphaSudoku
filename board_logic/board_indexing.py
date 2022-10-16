@@ -1,4 +1,16 @@
 class BoardIndexing:
+    '''
+        A class to label sudoku board indexes and cache them in data files
+
+        ATTRIBUTES
+        _cells: array of cell indexes from A1 ... I9
+        _units: dictionary of index-units pairs (e.g. A1: [[row unit of A1], [col unit of A1], [subgrid unit of A1]])
+        _peers: dictionary of index-peers pairs (e.g. A1: {A2 ... A9, B1 ... B9, subgrid of A1})
+
+        METHODS
+        _cross(A, B)
+            function that takes the cross product of A and B
+    '''
     def __init__(self):
         rows = '123456789'
         cols = 'ABCDEFGHI'
@@ -26,10 +38,25 @@ class BoardIndexing:
         # a dictionary where the keys are all possible cell indexes (A1 ... I9) and the values are that cell's distinct peers
         self._peers = dict((cell, set(sum(self._units[cell],[])) - set([cell])) for cell in self._cells)
 
+
+    '''
+        Cross product function
+
+        PARAMS
+        A: set of strings
+        B: set of strings
+
+        RETURNS
+        A x B 
+    '''
     def _cross(self, A, B):
         # this takes the cross of A and B, assuming their elements are strings
         return [a + b for a in A for b in B] 
 
+
+    '''
+        Get functions for board index types
+    '''
     def get_cell_indexes(self):
         return self._cells
 
