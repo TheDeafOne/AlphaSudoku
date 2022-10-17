@@ -31,11 +31,17 @@ class Board:
 
         self._digits = set('123456789')
 
+        # track length of max group for display purposes
+        self._max_group_length = 0
+
         # board represented as a string
         self._string_board = ''
 
         # board represented as a 2D array
         self._board_2D = []
+
+        # group board represented as a 2D array (each group is in a list, so technically a 3D array)
+        self._group_board_2D = []
 
         # initial group board
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
@@ -58,9 +64,10 @@ class Board:
         parsed_board = self._parse_board(board)
         if parsed_board:
             self._string_board = ''.join(parsed_board)
-            self._board_2D = []
+            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
             self._board = dict(zip(self.cell_indexes, parsed_board))
             self._update_group_board()
+            self._create_group_board_2D()
             return True
         else:
             # board could not be parsed
@@ -103,18 +110,58 @@ class Board:
     '''
     def _update_group_board(self):
         # cycle through all possible cell indexes
-        for cell_index in self.cell_indexes:
+        for i, cell_index in enumerate(self.cell_indexes):
             cell = self._board[cell_index]
             if cell != '0':
                 # cycle through peers and manage group board accordingly
                 peers = self.peer_indexes[cell_index]
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
-                    self._group_board[peer] = self._group_board[peer] - set(cell)
+                    group = self._group_board[peer] - set(cell)
+                    self._max_group_length = max(len(group), self._max_group_length)
+                    self._group_board[peer] = group
                 
                 # remove cell value from group board
                 self._group_board[cell_index] = set(self._board[cell_index])
 
+
+    def _create_group_board_2D(self):
+        group_board_2D = []
+        for i, cell_index in enumerate(self._group_board):
+            if i % 8 == 0:
+                group_board_2D.append([])
+            group_board_2D[-1].append(list(self._group_board[cell_index]))
+
+        self._group_board_2D = group_board_2D           
+
+
+    def display_board(self, width="medium"):
+        space = ""
+        partition_multiplier = 0
+        if width == "small":
+            partition_multiplier = 11
+        elif width == "medium":
+            partition_multiplier = 23
+            space = " "
+        elif width == "large":
+            partition_multiplier = 35
+            space = "  "
+
+        for i, row in enumerate(self._board_2D):
+            for j, cell in enumerate(row):
+                col_mod = j % 3
+                if col_mod == 0 and j != 0:
+                    print(space + "|" + space, end="")
+                    print(cell, end="")
+                else:
+                    print(space + cell, end="")
+            print()
+            if (i + 1) % 3 == 0 and i != 8:
+                print("-" * partition_multiplier)
+    
+    def display_group_board(self):
+        
+        pass
 
     '''
         Get functions for board types and group board
@@ -124,12 +171,15 @@ class Board:
 
     def get_group_board(self):
         return self._group_board
+    
+    def get_group_board_2D(self):
+        return self._group_board_2D
 
     def get_board_string(self):
         return self._string_board
 
     def get_board_2D(self):
-        return [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
+        return self._board_2D
     
     def new_board(self):
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
