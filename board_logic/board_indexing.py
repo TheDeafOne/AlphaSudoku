@@ -43,12 +43,12 @@ class BoardIndexing:
         cells = {
             "cells": self._cells
         }
-        with open("../data/board_indexes/cells.txt", "w+") as f:
-            f.write(json.dumps(cells))
-        with open("../data/board_indexes/units.txt", "w+") as f:
-            f.write(json.dumps(self._units))
-        with open("../data/board_indexes/peers.txt", "w+") as f:
-            f.write(json.dumps(self._peers))
+        with open("../data/board_indexes/cells.txt", "w+") as cells_file:
+            cells_file.write(json.dumps(cells))
+        with open("../data/board_indexes/units.txt", "w+") as units_file:
+            units_file.write(json.dumps(self._units))
+        with open("../data/board_indexes/peers.txt", "w+") as peers_file:
+            peers_file.write(json.dumps(self._peers))
 
     
     '''

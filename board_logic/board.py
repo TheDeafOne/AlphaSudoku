@@ -1,4 +1,4 @@
-from board_generator import BoardGenerator
+from .board_generator import BoardGenerator
 import json
 
 class Board:
@@ -24,7 +24,7 @@ class Board:
             updates group board according to the current _board state
     '''
     def __init__(self):
-        with open("../data/board_indexes/cells.txt") as cells, open("../data/peers.txt") as peers:
+        with open("../data/board_indexes/cells.txt") as cells, open("../data/board_indexes/peers.txt") as peers:
             self.cell_indexes = json.load(cells)["cells"]
             self.peer_indexes = json.load(peers)
         

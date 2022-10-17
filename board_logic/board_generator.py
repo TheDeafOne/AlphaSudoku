@@ -48,7 +48,7 @@ class BoardGenerator:
         
         offset = random.randrange(begin, end)
 
-        dataset = open('./data/initial_boards/sudoku_dataset.csv')
+        dataset = open('../data/initial_boards/sudoku_dataset.csv')
         
         # jump to random line and return it
         dataset.seek(offset*self._row_char_count)
