@@ -124,7 +124,10 @@ class Board:
                 # remove cell value from group board
                 self._group_board[cell_index] = set(self._board[cell_index])
 
-
+    
+    '''
+        Creates 2D array representation of group board
+    '''
     def _create_group_board_2D(self):
         group_board_2D = [[]]
         for i, cell_index in enumerate(self._group_board):
@@ -135,6 +138,12 @@ class Board:
         self._group_board_2D = group_board_2D           
 
 
+    '''
+        Prints board of variable size
+
+        PARAMS
+        width: enum value (small, medium, large) setting the display board width
+    '''
     def display_board(self, width="medium"):
         space = ""
         partition_multiplier = 0
@@ -159,6 +168,10 @@ class Board:
             if (i + 1) % 3 == 0 and i != 8:
                 print("-" * partition_multiplier)
     
+
+    '''
+        Prints group board
+    '''
     def display_group_board(self):
         for i, row in enumerate(self._group_board_2D):
             for j, val in enumerate(row):
@@ -169,7 +182,7 @@ class Board:
                 print()
                 print("-" * (self._max_group_length * 11), end="")
             print()
-        pass
+
 
     '''
         Get functions for board types and group board
