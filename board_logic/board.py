@@ -1,5 +1,5 @@
-from testing_board_indexing import generate_board
-from .board_indexing import BoardIndexing
+from board_generator import BoardGenerator
+import json
 
 class Board:
     '''
@@ -24,9 +24,10 @@ class Board:
             updates group board according to the current _board state
     '''
     def __init__(self):
-        board_indexes = BoardIndexing()
-        self.cell_indexes = board_indexes.get_cell_indexes()
-        self.peer_indexes = board_indexes.get_peer_indexes()
+        with open("../data/board_indexes/cells.txt") as cells, open("../data/peers.txt") as peers:
+            self.cell_indexes = json.load(cells)["cells"]
+            self.peer_indexes = json.load(peers)
+        
 
         self._digits = set('123456789')
 
@@ -123,4 +124,4 @@ class Board:
     
     def new_board(self):
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
-        self.set_board(generate_board())
+        self.set_board(BoardGenerator.generate_board())
