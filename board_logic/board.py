@@ -34,6 +34,9 @@ class Board:
         # board represented as a string
         self._string_board = ''
 
+        # board represented as a 2D array
+        self._board_2D = []
+
         # initial group board
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
 
@@ -53,8 +56,9 @@ class Board:
     def set_board(self, board):
         # parse given board and assign group board accordingly
         parsed_board = self._parse_board(board)
-        if board and len(board) == 81:
+        if parsed_board:
             self._string_board = ''.join(parsed_board)
+            self._board_2D = []
             self._board = dict(zip(self.cell_indexes, parsed_board))
             self._update_group_board()
             return True
@@ -69,6 +73,9 @@ class Board:
 
         PARAMS
         board: sudoku board in any common representation
+
+        RETURNS
+        array of board values if board could be parsed, False otherwise
     '''
     def _parse_board(self, board):
         if type(board) == str:
@@ -78,9 +85,11 @@ class Board:
             if len(board) == 9:
                 # handle board input as 2D array (e.g [[1 ... 9] * 9])
                 return [cell if cell in self._digits else '0' for row in board for cell in row]
-            else:
+            elif len(board) == 81:
                 # handle board input as 1D array
                 return board
+            elif len(board) == 2:
+                return [cell if cell in self._digits else '0' for cell in board[0]]
         elif type(board) == dict:
             # handle board input as dictionary
             return [cell if cell in self._digits else '0' for cell in board.values()]
