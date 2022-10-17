@@ -126,11 +126,11 @@ class Board:
 
 
     def _create_group_board_2D(self):
-        group_board_2D = []
+        group_board_2D = [[]]
         for i, cell_index in enumerate(self._group_board):
-            if i % 8 == 0:
-                group_board_2D.append([])
             group_board_2D[-1].append(list(self._group_board[cell_index]))
+            if (i + 1) % 9 == 0 and i != 80:
+                group_board_2D.append([])
 
         self._group_board_2D = group_board_2D           
 
@@ -160,7 +160,15 @@ class Board:
                 print("-" * partition_multiplier)
     
     def display_group_board(self):
-        
+        for i, row in enumerate(self._group_board_2D):
+            for j, val in enumerate(row):
+                print("".join(val).ljust(self._max_group_length + 1, " "), end="")
+                if (j + 1) % 3 == 0 and j != 8:
+                    print("|   ", end="")
+            if (i + 1) % 3 == 0 and i != 8:
+                print()
+                print("-" * (self._max_group_length * 11), end="")
+            print()
         pass
 
     '''

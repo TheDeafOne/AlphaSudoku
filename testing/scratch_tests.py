@@ -19,11 +19,9 @@ def generate_board():
 def test_board_grouping():
     nb = generator.generate_board()
     board.set_board(nb)
-    td_board = board.get_board_2D()
-    print(board.get_group_board())
-    [print(row) for row in td_board]
     board.display_board("large")
-    # board.display_group_board()
+    board.display_group_board()
+    
     
 
 if __name__ == '__main__':
