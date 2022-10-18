@@ -1,66 +1,73 @@
-'''
-    An implementation of Mackworth's Arc Consistency Algorithm Three (AC3)
-'''
-
-from idna import valid_string_length
-
-
 class AC3:
-    def __init__(self, variables = None):
-        self._variables = variables    
+    '''
+        An implementation of Mackworth's Arc Consistency Algorithm Three (AC3)
 
-        # constraint lists
-        # dictionary where key is constraint type and value is list of pairs of variables
-        self._constraints = []
+        ATTRIBUTES
+        _variables: a dictionary where key: variable, value: domain of variable
+        _arcs: list of constraints and their inverse (e.g. if (A1, A2) is in _arcs, then (A2, A1) will also be in arcs)
 
-        self._arcs = []
-
-    def set_variables(self, variables):
-        self._variables = variables
-    
-    def set_constraints(self, constraints, inverse = False):
-        self._constraints = constraints
-        self._arcs.extend(constraints)
-        if inverse:
-            self._arcs.extend([x[::-1] for x in constraints])
-
+        METHODS
+        ac3()
+            implementation of ac3 algorithm
         
+        revise(x, y)
+            prunes values from domain of variable x with respect to the values in the domain of variable y
+    '''
+    def __init__(self, variables={}, constraints=[], inverse = False):
+        self._variables = variables    
+        self._arcs = [x[::-1] for x in constraints] if inverse else constraints
 
+ 
+    '''
+        Arc consistency algorithm 3
+        cycles through agenda and revises domain of elements in each arc
+    '''
     def ac3(self):
         agenda = self._arcs
-        # emulate do while
-        while True:
-            arc = agenda.pop(0)
-            if self.arc_reduce(arc):
-                if len(self._variables[arc[0]]) == 0:
-                    return False
+        
+        # cycle through agenda while it contains arcs
+        while len(agenda) > 0:
+            # arbitrary arc (e.g. (A1, A2))
+            x, y = agenda.pop(0)
+
+            if self.revise(x, y): # true if domain of x has changed
+                if len(self._variables[x]) != 0:
+                    agenda.extend([new_arc for new_arc in self._arcs if new_arc[1] == x])
                 else:
-                    agenda.extend([new_arc for new_arc in self._arcs if new_arc[1] == arc[0]])
-            
-            if len(agenda) == 0:
-                break
+                    return False # empty domain
         
         return self._variables
                     
     
-    def arc_reduce(self, arc):
-        x, y = arc
+    '''
+        Prunes values from domain of variable x with respect to the values in the domain of variable y
+
+        RETURNS
+        True if domain of variable x has changed, False otherwise
+    '''
+    def revise(self, x, y):
         changed = False
+        # grab domains of variables x and y
         x_domain = self._variables[x]
         y_domain = self._variables[y]
+
+        # cycle through x domain and prune domain values accordingly
         for x_val in x_domain:
-            is_val = True
-            for y_val in y_domain:
-                if x_val != y_val:
-                    is_val = False
-            if is_val:
+            if any([x_val == y_val for y_val in y_domain]): # true if every value in y domain is == x_val
                 self._variables[x] = self._variables[x] - set([x_val])
-                print('removed ' + x_val)
-                changed = True
+                changed = True # domain of X has changed
+
         return changed
                 
-
-
+    
+    '''
+        Get and set functions
+    '''
+    def set_variables(self, variables):
+        self._variables = variables
+    
+    def get_variables(self):
+        return self._variables
 
 
     

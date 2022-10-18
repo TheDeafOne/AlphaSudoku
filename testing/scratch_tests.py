@@ -26,15 +26,16 @@ def test_board_grouping():
 
 def test_ac3():
     board = Board()
-    board.new_board()
+    # board.new_board(30,30)
+    board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
+    print(board.get_board_string())
     board.display_board("large")
     print()
     indexes = board.get_peer_indexes()
     constraints = [(index, peer) for index in indexes for peer in indexes[index]]
     gb = board.get_group_board()
-    ac3 = AC3()
-    ac3.set_variables(gb)
-    ac3.set_constraints(constraints)
+    ac3 = AC3(gb, constraints)
+    
 
     board.display_group_board()
     new_gb = ac3.ac3()
