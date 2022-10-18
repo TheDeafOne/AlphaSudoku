@@ -26,7 +26,7 @@ class Board:
         _update_subgrid_values()
             updates subgrid values according to set board values
 
-        new_board()
+        new_board(difficulty_begin, difficulty_end)
             generates a new board and updates board
     '''
     def __init__(self):
@@ -206,7 +206,7 @@ class Board:
     '''
         calls board generator and replaces board with generated board
     '''
-    def new_board(self):
+    def new_board(self, difficulty_begin=23, difficulty_end=30):
         self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
         self.set_board(BoardGenerator().generate_board())
 
