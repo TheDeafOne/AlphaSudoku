@@ -3,6 +3,7 @@ sys.path.append(os.path.join(sys.path[0], "../"))
 
 from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
+from algorithms.csps.ac3 import AC3
 
 board = Board()
 generator = BoardGenerator()
@@ -22,10 +23,47 @@ def test_board_grouping():
     print(board.get_subgrids())
     board.display_board("large")
     # board.display_group_board()
+
+def test_ac3():
+    board = Board()
+    # board.new_board(30,30)
+    board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
+    print(board.get_board_string())
+    board.display_board("large")
+    print()
+    indexes = board.get_peer_indexes()
+    constraints = [(index, peer) for index in indexes for peer in indexes[index]]
+    gb = board.get_group_board()
+    ac3 = AC3(gb, constraints)
+    
+
+    board.display_group_board()
+    new_gb = ac3.ac3()
+    print()
+
+    group_board_2D = [[]]
+    for i, cell_index in enumerate(new_gb):
+        group_board_2D[-1].append(list(new_gb[cell_index]))
+        if (i + 1) % 9 == 0 and i != 80:
+            group_board_2D.append([])
+
+    for i, row in enumerate(group_board_2D):
+        for j, val in enumerate(row):
+            print("".join(val).ljust(board._max_group_length + 1, " "), end="")
+            if (j + 1) % 3 == 0 and j != 8:
+                print("|   ", end="")
+        if (i + 1) % 3 == 0 and i != 8:
+            print()
+            print("-" * (board._max_group_length * 11), end="")
+        print()
+
+    
+    
     
     
 
 if __name__ == '__main__':
-    test_board_grouping()
+    # test_board_grouping()
+    test_ac3()
 
     pass
