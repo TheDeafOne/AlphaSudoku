@@ -208,7 +208,7 @@ class Board:
     '''
     def new_board(self):
         self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
-        self.set_board(BoardGenerator.generate_board())
+        self.set_board(BoardGenerator().generate_board())
 
     '''
         Get functions for board types and group board
