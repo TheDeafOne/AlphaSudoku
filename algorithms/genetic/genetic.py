@@ -95,7 +95,8 @@ class GeneticSolver():
                 fitness += board_list[i].count(f"{j}")
                 col = [item[i] for item in board_list]
                 fitness += col.count(f"{j}")
-            fitness += self.check_all_blocks(f"{j}", board_list) 
+            # fitness += self.check_all_blocks(f"{j}", board_list) 
+            
             fitness += abs(flattened_list.count(f"{i}")-9)
             fitness -= 27
         return fitness

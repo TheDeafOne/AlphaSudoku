@@ -29,10 +29,10 @@ class BoardIndexing:
         row_indexes = [self._cross(cols, letter) for letter in rows]
 
         # list of subgrids. First row would be A1, A2, A3, B1, B2, B3, C1, C2, C3
-        subgrid_indexes = [self._cross(col_slice, row_slice) for row_slice in subgrid_rows for col_slice in subgrid_cols]
+        self._subgrid_indexes = [self._cross(col_slice, row_slice) for row_slice in subgrid_rows for col_slice in subgrid_cols]
 
         # list of all rows, columns, and subgrigds
-        unit_list = (col_indexes + row_indexes + subgrid_indexes)
+        unit_list = (col_indexes + row_indexes + self._subgrid_indexes)
 
         # a dictionary where the keys are all possible cell indexes (A1 ... I9) and the values are that cell's units (row, column, and subgrid)
         self._units = dict((cell, [unit for unit in unit_list if cell in unit]) for cell in self._cells)
@@ -43,12 +43,19 @@ class BoardIndexing:
         cells = {
             "cells": self._cells
         }
-        with open("../data/board_indexes/cells.txt", "w+") as cells_file:
+
+        subgrids = {
+            "subgrids": self._subgrid_indexes
+        }
+
+        with open("../../data/board_indexes/cells.txt", "w+") as cells_file:
             cells_file.write(json.dumps(cells))
-        with open("../data/board_indexes/units.txt", "w+") as units_file:
+        with open("../../data/board_indexes/units.txt", "w+") as units_file:
             units_file.write(json.dumps(self._units))
-        with open("../data/board_indexes/peers.txt", "w+") as peers_file:
+        with open("../../data/board_indexes/peers.txt", "w+") as peers_file:
             peers_file.write(json.dumps(self._peers))
+        with open("../../data/board_indexes/subgrids.txt", "w+") as subgrid_file:
+            subgrid_file.write(json.dumps(subgrids))
 
     
     '''

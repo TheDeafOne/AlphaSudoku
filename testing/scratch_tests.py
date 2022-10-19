@@ -20,8 +20,9 @@ def generate_board():
 def test_board_grouping():
     nb = generator.generate_board()
     board.set_board(nb)
+    print(board.get_subgrids())
     board.display_board("large")
-    board.display_group_board()
+    # board.display_group_board()
     
 def test_genetic():
     genetic_solver = GeneticSolver()
