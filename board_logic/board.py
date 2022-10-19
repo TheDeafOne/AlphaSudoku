@@ -23,7 +23,7 @@ class Board:
         _update_group_board():
             updates group board according to the current _board state
     '''
-    def __init__(self):
+    def __init__(self, board=None):
         with open("../data/board_indexes/cells.txt") as cells, open("../data/board_indexes/peers.txt") as peers:
             self.cell_indexes = json.load(cells)["cells"]
             self.peer_indexes = json.load(peers)
@@ -49,6 +49,9 @@ class Board:
         # initial display board
         self._board = {}
         
+        # sets the board starting value if given initial board
+        if board != None:
+            self.set_board(board)
 
     '''
         Sets board dictionary to values found in given board, and assigns groups according to new board state
@@ -205,3 +208,6 @@ class Board:
     def new_board(self):
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
         self.set_board(BoardGenerator.generate_board())
+
+    def __str__(self):
+        return f"{self.get_board_2D()}"

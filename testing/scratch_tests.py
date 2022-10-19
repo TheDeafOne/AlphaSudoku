@@ -3,6 +3,7 @@ sys.path.append(os.path.join(sys.path[0], "../"))
 
 from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
+from algorithms.genetic.genetic import GeneticSolver
 
 board = Board()
 generator = BoardGenerator()
@@ -22,9 +23,15 @@ def test_board_grouping():
     board.display_board("large")
     board.display_group_board()
     
+def test_genetic():
+    genetic_solver = GeneticSolver()
+    genetic_solver.run()
+    
     
 
 if __name__ == '__main__':
-    test_board_grouping()
+    # test_board_grouping()
+    test_genetic()
+
 
     pass
