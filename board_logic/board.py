@@ -48,6 +48,7 @@ class Board:
         # list of subgrid values
         self._subgrids = []
 
+        self._groups = {}
         # board represented as a string
         self._string_board = ''
 
@@ -56,6 +57,8 @@ class Board:
 
         # group board represented as a 2D array (each group is in a list, so technically a 3D array)
         self._group_board_2D = []
+
+        self._group_board_2D_map = {}
 
         # initial group board
         self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
@@ -81,7 +84,6 @@ class Board:
             self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
             self._board = dict(zip(self._cell_indexes, parsed_board))
             self._update_group_board()
-            self._create_group_board_2D()
             self._update_subgrid_values()
             return True
         else:
@@ -115,6 +117,8 @@ class Board:
         elif type(board) == dict:
             # handle board input as dictionary
             return [cell if cell in self._digits else '0' for cell in board.values()]
+        elif type(board) == Board:
+            return list(board.get_board().values())
         else:
             # could not parse board
             return False
@@ -125,7 +129,7 @@ class Board:
     '''
     def _update_group_board(self):
         # cycle through all possible cell indexes
-        for i, cell_index in enumerate(self._cell_indexes):
+        for cell_index in self._cell_indexes:
             cell = self._board[cell_index]
             if cell != '0':
                 # cycle through peers and manage group board accordingly
@@ -138,7 +142,20 @@ class Board:
                 
                 # remove cell value from group board
                 self._group_board[cell_index] = set(self._board[cell_index])
+        # make 2D group board
+        self._create_group_board_2D()
 
+        # get groups
+        self._set_groups()
+
+    def set_group_board(self, group_board):
+        self._group_board = group_board
+        self._set_groups()
+    
+    def _set_groups(self):
+        for cell_index in self._group_board:
+            if len(self._group_board[cell_index]) > 1:
+                self._groups[cell_index] = self._group_board[cell_index]
     '''
         updates subgrid values according to board
     '''
@@ -152,6 +169,8 @@ class Board:
         group_board_2D = [[]]
         for i, cell_index in enumerate(self._group_board):
             group_board_2D[-1].append(list(self._group_board[cell_index]))
+            # map cell_index to i,j index pair
+            self._group_board_2D_map[cell_index] = (len(group_board_2D) - 1, i % 9)
             if (i + 1) % 9 == 0 and i != 80:
                 group_board_2D.append([])
 
@@ -159,10 +178,52 @@ class Board:
 
 
     '''
-        Prints board of variable size
+        calls board generator and replaces board with generated board
+    '''
+    def new_board(self, difficulty_begin=23, difficulty_end=30):
+        self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
+        self.set_board(BoardGenerator().generate_board(difficulty_begin, difficulty_end))
 
-        PARAMS
-        width: enum value (small, medium, large) setting the display board width
+    '''
+        Get functions for board types and group board
+    '''
+    def get_board(self):
+        return self._board
+
+    def get_group_board(self):
+        return self._group_board
+    
+    def get_group_board_2D(self):
+        return self._group_board_2D
+
+    def get_board_string(self):
+        return self._string_board
+
+    def get_board_2D(self):
+        return self._board_2D
+    
+    def get_group_board_2D_map(self):
+        return self._group_board_2D_map
+    
+    def get_subgrids(self):
+        return self._subgrids
+
+    def get_cell_indexes(self):
+        return self._cell_indexes
+    
+    def get_peer_indexes(self):
+        return self._peer_indexes
+    
+    def get_subgrid_indexes(self):
+        return self._subgrid_indexes
+
+    def set_board_value(self, index, value):
+        self._board[index] = value
+        self._set_board(self._board)
+
+
+    '''
+        display functions
     '''
     def display_board(self, width="medium"):
         space = ""
@@ -189,9 +250,6 @@ class Board:
                 print("-" * partition_multiplier)
     
 
-    '''
-        Prints group board
-    '''
     def display_group_board(self):
         for i, row in enumerate(self._group_board_2D):
             for j, val in enumerate(row):
@@ -202,40 +260,3 @@ class Board:
                 print()
                 print("-" * (self._max_group_length * 11), end="")
             print()
-
-    '''
-        calls board generator and replaces board with generated board
-    '''
-    def new_board(self, difficulty_begin=23, difficulty_end=30):
-        self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
-        self.set_board(BoardGenerator().generate_board())
-
-    '''
-        Get functions for board types and group board
-    '''
-    def get_board(self):
-        return self._board
-
-    def get_group_board(self):
-        return self._group_board
-    
-    def get_group_board_2D(self):
-        return self._group_board_2D
-
-    def get_board_string(self):
-        return self._string_board
-
-    def get_board_2D(self):
-        return self._board_2D
-    
-    def get_subgrids(self):
-        return self._subgrids
-
-    def get_cell_indexes(self):
-        return self._cell_indexes
-    
-    def get_peer_indexes(self):
-        return self._peer_indexes
-    
-    def get_subgrid_indexes(self):
-        return self._subgrid_indexes
