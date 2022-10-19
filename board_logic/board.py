@@ -1,5 +1,7 @@
 from .board_generator import BoardGenerator
+from copy import deepcopy
 import json
+import sys
 
 class Board:
     '''
@@ -78,12 +80,13 @@ class Board:
     '''  
     def set_board(self, board):
         # parse given board and assign group board accordingly
-        parsed_board = self._parse_board(board)
+        parsed_board = self._parse_board(deepcopy(board))
         if parsed_board:
             self._string_board = ''.join(parsed_board)
             self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
             self._board = dict(zip(self._cell_indexes, parsed_board))
-            self._update_group_board()
+            if not self._update_group_board():
+                return False
             self._update_subgrid_values()
             return True
         else:
@@ -136,26 +139,44 @@ class Board:
                 peers = self._peer_indexes[cell_index]
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
+                    # print(f"CELL : {cell}")
+
                     group = self._group_board[peer] - set(cell)
+                    if len(group) == 0:
+                        return False
+                    # print(f"GROUP : {group}")
                     self._max_group_length = max(len(group), self._max_group_length)
                     self._group_board[peer] = group
                 
+
                 # remove cell value from group board
-                self._group_board[cell_index] = set(self._board[cell_index])
+                if (len(set(self._group_board[cell_index])) == 0):
+                    return False
+                else:
+                    self._group_board[cell_index] = set(self._board[cell_index])
+
+                # print(self._group_board)
         # make 2D group board
         self._create_group_board_2D()
 
         # get groups
         self._set_groups()
+        return True
 
     def set_group_board(self, group_board):
-        self._group_board = group_board
+        self._group_board = deepcopy(group_board)
+        for index in group_board:
+            if len(group_board[index]) == 1:
+                self._board[index] = list(group_board[index])[0]
+        self._create_group_board_2D()
         self._set_groups()
     
     def _set_groups(self):
         for cell_index in self._group_board:
             if len(self._group_board[cell_index]) > 1:
                 self._groups[cell_index] = self._group_board[cell_index]
+            elif cell_index in self._groups:
+                del self._groups[cell_index]
     '''
         updates subgrid values according to board
     '''
@@ -188,38 +209,42 @@ class Board:
         Get functions for board types and group board
     '''
     def get_board(self):
-        return self._board
+        return deepcopy(self._board)
 
     def get_group_board(self):
-        return self._group_board
+        return deepcopy(self._group_board)
+
+    def get_groups(self):
+        return deepcopy(self._groups)
     
     def get_group_board_2D(self):
-        return self._group_board_2D
+        return deepcopy(self._group_board_2D)
 
     def get_board_string(self):
-        return self._string_board
+        return deepcopy(self._string_board)
 
     def get_board_2D(self):
-        return self._board_2D
+        return deepcopy(self._board_2D)
     
     def get_group_board_2D_map(self):
-        return self._group_board_2D_map
+        return deepcopy(self._group_board_2D_map)
     
     def get_subgrids(self):
-        return self._subgrids
+        return deepcopy(self._subgrids)
 
     def get_cell_indexes(self):
-        return self._cell_indexes
+        return deepcopy(self._cell_indexes)
     
     def get_peer_indexes(self):
-        return self._peer_indexes
+        return deepcopy(self._peer_indexes)
     
     def get_subgrid_indexes(self):
-        return self._subgrid_indexes
+        return deepcopy(self._subgrid_indexes)
+    
 
     def set_board_value(self, index, value):
         self._board[index] = value
-        self._set_board(self._board)
+        return self.set_board(self._board)
 
 
     '''
@@ -236,18 +261,20 @@ class Board:
         elif width == "large":
             partition_multiplier = 35
             space = "  "
-
+        print_string = ''
         for i, row in enumerate(self._board_2D):
             for j, cell in enumerate(row):
                 col_mod = j % 3
                 if col_mod == 0 and j != 0:
-                    print(space + "|" + space, end="")
-                    print(cell, end="")
+                    print_string += space + "|" + space
+                    print_string += cell
                 else:
-                    print(space + cell, end="")
-            print()
+                    print_string += space + cell
+            print_string += '\n'
             if (i + 1) % 3 == 0 and i != 8:
-                print("-" * partition_multiplier)
+                print_string += "-" * partition_multiplier + "\n"
+        
+        print(print_string, end='\r')
     
 
     def display_group_board(self):
