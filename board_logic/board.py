@@ -29,7 +29,7 @@ class Board:
         new_board()
             generates a new board and updates board
     '''
-    def __init__(self):
+    def __init__(self, board=None):
         with (
             open("../data/board_indexes/cells.txt") as cells, 
             open("../data/board_indexes/peers.txt") as peers,
@@ -242,3 +242,7 @@ class Board:
     
     def get_subgrid_indexes(self):
         return self._subgrid_indexes
+
+    def set_board_value(self, index, value):
+        self._board[index] = value
+        return self.set_board(self._board)
