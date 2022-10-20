@@ -7,17 +7,21 @@ from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class GeneticSolver():
     C = 100
-    PARENT_POP_SIZE = 5
+    PARENT_POP_SIZE = 20
     OFFSPRING_POP_SIZE = 500
     CROSSOVER_PROB = 0.7
     MUTATION_PROB = 0.4
     UPDATE_PROB = 0.3
+    BEST_SOLS_RATIO = 0.8
 
     def __init__(self):
         self.fitness = 100
         board_generator = BoardGenerator()
         self.board = Board()
-        self.board.set_board(board_generator.generate_board())
+        # print()
+        self.board.new_board()
+        print(self.board.get_board_2D())
+        # self.board.set_board(board_generator.generate_board())
         # print(self)
         self.board.display_group_board()
         # print(self.board.get_group_board())
@@ -55,10 +59,11 @@ class GeneticSolver():
             # FOR EACH ITERATION i <= N PERFORM CROSSOVER, EVALUATE POPULATION, AND CHOOSE BEST u SOLUTIONS
             for i in range(N):
                 self.crossover(population)
-
-            eval_pop = {board : self.fitness_function(board) for board in population}
-            sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
-            fitnesses = [self.fitness_function(i) for i in sorted_pop]
+                eval_pop = {board : self.fitness_function(board) for board in population}
+                sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
+                population = sorted_pop[:self.PARENT_POP_SIZE]
+                fitnesses = [self.fitness_function(i) for i in population]
+                print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
 
             # top_sols = sorted_pop[0:pop_size]
             # print(fitnesses)
@@ -80,15 +85,16 @@ class GeneticSolver():
         # if self.fitness_function(a) > self.fitness_function(b):
     def update_group_table(self, best_board: Board, boards):
         gt = self.board.get_group_board()
+        best_board_board = best_board.get_board()
         board_boards = [b.get_board() for b in boards]
         for i in range(81):
-            r = chr(65+ i // 9)
-            c = str(i  % 9 + 1)
+            r = chr(65 + i // 9)
+            c = str(i % 9 + 1)
             rc = r+c
-            val = best_board.get_board()[rc]
+            val = best_board_board[rc]
             if val in gt[rc]:
-                if all(val == b[rc] for b in board_boards): # FIX THIS PART
-                    if rand.random() > self.UPDATE_PROB:
+                if sum(1 if val == b[rc] else 0 for b in board_boards) >= self.BEST_SOLS_RATIO * len(board_boards): # FIX THIS PART
+                    if rand.random() < self.UPDATE_PROB:
                         self.board.set_board_value(rc, val)
 
 
@@ -115,20 +121,21 @@ class GeneticSolver():
 
     def crossover(self, population):
         # print(rand.randint(0,len(population)))
-        new_pop = []
+        indices = list(range(len(population)))
+        pairs = [(indices.pop(rand.randint(0, len(indices) - 1)), indices.pop(rand.randint(0, len(indices) - 1))) for i in range(len(population) // 2)]
+        for i_1, i_2 in pairs:
+            parent_1 : Board = population[i_1]
+            parent_2 : Board = population[i_2]
 
-        parent_1: Board = population.pop(rand.randint(0,len(population)-1))
-        parent_2: Board = population.pop(rand.randint(0,len(population)-1))
+            s1 = parent_1.get_board_string()
+            s2 = parent_2.get_board_string()
+            c_p = [rand.random() for i in range(81)]
 
-        s1 = parent_1.get_board_string()
-        s2 = parent_2.get_board_string()
-        c_p = [rand.random() for i in range(81)]
-
-        n_s1 = ''.join([s1[i] if c_p[i] <= self.CROSSOVER_PROB else s2[i] for i in range(81)])
-        n_s2 = ''.join([s2[i] if c_p[i] <= self.CROSSOVER_PROB else s1[i] for i in range(81)])
-        
-        population.append(Board(board=n_s1))
-        population.append(Board(board=n_s2))
+            n_s1 = ''.join([s1[i] if c_p[i] < self.CROSSOVER_PROB else s2[i] for i in range(81)])
+            n_s2 = ''.join([s2[i] if c_p[i] < self.CROSSOVER_PROB else s1[i] for i in range(81)])
+            
+            population.append(Board(board=n_s1))
+            population.append(Board(board=n_s2))
 
 
     def generate_population(self, pop_size):
