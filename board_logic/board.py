@@ -26,13 +26,15 @@ class Board:
         with (
             open("../data/board_indexes/cells.txt") as cells, 
             open("../data/board_indexes/peers.txt") as peers,
-            open("../data/board_indexes/units.txt") as units
+            open("../data/board_indexes/units.txt") as units,
+            open("../data/board_indexes/subgrids.txt") as subgrids
             ):
             self.cell_indexes = json.load(cells)["cells"]
+            self.subgrid_indexes = json.load(subgrids)["subgrids"]
             self.peer_indexes = json.load(peers)
             self.unit_indexes = json.load(units)
         
-
+        # possible digits of an empty cell
         self._digits = '123456789'
 
         # track length of max group for display purposes
@@ -53,7 +55,15 @@ class Board:
         # initial display board
         self._board = {}
         
-
+    '''
+        Sets board dictionary to values found in given board, and assigns groups according to new board state
+        
+        PARAMS
+        board: sudoku board in any common representation
+        
+        RETURNS
+        True if the given board could be parsed, False otherwise
+    '''  
     def set_board(self, board):
         # parse given board and assign group board accordingly
         parsed_board = self._parse_board(board)
@@ -62,21 +72,28 @@ class Board:
             self._board = dict(zip(self.cell_indexes, parsed_board))
             self._set_string_board()
             self._set_board_2D()
+            self._update_subgrid_values()
+            self._create_group_board_2D()
             if not self._update_group_board():
                 # value is causing empty sets at at least one point
                 return False
-            self._create_group_board_2D()
 
             return True
         else:
             # board could not be parsed
             return False
 
-    def _set_string_board(self):
-        self._string_board = ''.join(list(self._board.values()))
 
-
-   
+    '''
+        creates a 1D array representation of a board for common types of boards 
+        (string, 1D array, 2D array, and dictionary)
+        
+        PARAMS
+        board: sudoku board in any common representation
+        
+        RETURNS
+        array of board values if board could be parsed, False otherwise
+    '''
     def _parse_board(self, board):
         if type(board) == str:
             # handle board input as string (e.g. '10020300000400000900020020000003')
@@ -96,12 +113,6 @@ class Board:
         else:
             # could not parse board
             return False
-
-
-
-
-    def _set_board_2D(self):
-            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
 
 
     '''
@@ -135,6 +146,50 @@ class Board:
                 group_board_2D.append([])
 
         self._group_board_2D = group_board_2D           
+
+
+    '''
+        updates subgrid values according to current board
+    '''
+    def _update_subgrid_values(self):
+        self._subgrids = [[self._board[index] for index in row] for row in self.subgrid_indexes]
+
+
+    '''
+        set string board according to current board
+    '''
+    def _set_string_board(self):
+        self._string_board = ''.join(list(self._board.values()))
+
+
+    '''
+        set 2D board according to string board
+    '''
+    def _set_board_2D(self):
+            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
+
+    
+    '''
+        Get functions for board types and group board
+    '''
+    def get_board(self):
+        return self._board
+
+    def get_group_board(self):
+        return self._group_board
+    
+    def get_group_board_2D(self):
+        return self._group_board_2D
+
+    def get_board_string(self):
+        return self._string_board
+
+    def get_board_2D(self):
+        return self._board_2D
+    
+    def new_board(self, difficulty_begin=23, difficulty_end=30):
+        self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
+        self.set_board(BoardGenerator().generate_board(difficulty_begin, difficulty_end))
 
 
     '''
@@ -180,26 +235,3 @@ class Board:
                 print()
                 print("-" * (self._max_group_length * 11), end="")
             print()
-
-
-    '''
-        Get functions for board types and group board
-    '''
-    def get_board(self):
-        return self._board
-
-    def get_group_board(self):
-        return self._group_board
-    
-    def get_group_board_2D(self):
-        return self._group_board_2D
-
-    def get_board_string(self):
-        return self._string_board
-
-    def get_board_2D(self):
-        return self._board_2D
-    
-    def new_board(self, difficulty_begin=23, difficulty_end=30):
-        self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
-        self.set_board(BoardGenerator().generate_board(difficulty_begin, difficulty_end))

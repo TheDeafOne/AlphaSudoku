@@ -97,21 +97,13 @@ def group_board_setting():
 
 def test_backtracking():
     board = Board()
-    board.new_board(23,23)
+    board.new_board()
     csps = CSPS(board)
     b = csps.solve()
-    print(b)
-    print(board.get_board_string())
+    board.set_board(b)
+    board.display_board()
+    # print(board.get_board_string())
     
-    
-
-def test_wild_backtracking():
-    board = Board()
-    board.new_board(30,30)
-    csps = CSPS(board)
-    csps.solve(board)
-    print(board.get_board_string())
-
 
 if __name__ == '__main__':
     # test_board_grouping()
@@ -119,6 +111,5 @@ if __name__ == '__main__':
     # board_setting()
     # group_board_setting()
     test_backtracking()
-    # test_wild_backtracking()
 
     pass
