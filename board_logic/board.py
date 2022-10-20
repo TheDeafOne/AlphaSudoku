@@ -4,10 +4,9 @@ import json
 class Board:
     '''
         A class used to manage and represent sudoku boards
-
         ATTRIBUTES
-        _cell_indexes: all indexes of a sudoku board in Letter,Number format (A1 ... I9)
-        _peer_indexes: all peers of a given cell
+        cell_indexes: all indexes of a sudoku board in Letter,Number format (A1 ... I9)
+        peer_indexes: all peers of a given cell
         _digits: possible sudoku cell values
         _string_board: current board state as a string
         _group_board: current group board state as a dictionary (key: cell index, value: set of possible values)
@@ -22,31 +21,24 @@ class Board:
         
         _update_group_board():
             updates group board according to the current _board state
-
-        _update_subgrid_values()
-            updates subgrid values according to set board values
-
-        new_board()
-            generates a new board and updates board
     '''
     def __init__(self):
         with (
             open("../data/board_indexes/cells.txt") as cells, 
             open("../data/board_indexes/peers.txt") as peers,
+            open("../data/board_indexes/units.txt") as units,
             open("../data/board_indexes/subgrids.txt") as subgrids
-        ):
-            self._cell_indexes = json.load(cells)["cells"]
-            self._subgrid_indexes = json.load(subgrids)["subgrids"]
-            self._peer_indexes = json.load(peers)
+            ):
+            self.cell_indexes = json.load(cells)["cells"]
+            self.subgrid_indexes = json.load(subgrids)["subgrids"]
+            self.peer_indexes = json.load(peers)
+            self.unit_indexes = json.load(units)
         
-
-        self._digits = set('123456789')
+        # possible digits of an empty cell
+        self._digits = '123456789'
 
         # track length of max group for display purposes
         self._max_group_length = 0
-
-        # list of subgrid values
-        self._subgrids = []
 
         # board represented as a string
         self._string_board = ''
@@ -58,18 +50,17 @@ class Board:
         self._group_board_2D = []
 
         # initial group board
-        self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
+        self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
 
         # initial display board
         self._board = {}
         
-
     '''
         Sets board dictionary to values found in given board, and assigns groups according to new board state
-
+        
         PARAMS
         board: sudoku board in any common representation
-
+        
         RETURNS
         True if the given board could be parsed, False otherwise
     '''  
@@ -77,25 +68,29 @@ class Board:
         # parse given board and assign group board accordingly
         parsed_board = self._parse_board(board)
         if parsed_board:
-            self._string_board = ''.join(parsed_board)
-            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
-            self._board = dict(zip(self._cell_indexes, parsed_board))
-            self._update_group_board()
-            self._create_group_board_2D()
+            # update string board, 2d board, dict board, group board, and subgrid values
+            self._board = dict(zip(self.cell_indexes, parsed_board))
+            self._set_string_board()
+            self._set_board_2D()
             self._update_subgrid_values()
+            self._create_group_board_2D()
+            if not self._update_group_board():
+                # value is causing empty sets at at least one point
+                return False
+
             return True
         else:
             # board could not be parsed
             return False
-        
-    
+
+
     '''
         creates a 1D array representation of a board for common types of boards 
         (string, 1D array, 2D array, and dictionary)
-
+        
         PARAMS
         board: sudoku board in any common representation
-
+        
         RETURNS
         array of board values if board could be parsed, False otherwise
     '''
@@ -125,26 +120,21 @@ class Board:
     '''
     def _update_group_board(self):
         # cycle through all possible cell indexes
-        for i, cell_index in enumerate(self._cell_indexes):
+        for i, cell_index in enumerate(self.cell_indexes):
             cell = self._board[cell_index]
             if cell != '0':
                 # cycle through peers and manage group board accordingly
-                peers = self._peer_indexes[cell_index]
+                peers = self.peer_indexes[cell_index]
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
-                    group = self._group_board[peer] - set(cell)
+                    group = self._group_board[peer].replace(cell,'')
                     self._max_group_length = max(len(group), self._max_group_length)
                     self._group_board[peer] = group
                 
                 # remove cell value from group board
-                self._group_board[cell_index] = set(self._board[cell_index])
+                self._group_board[cell_index] = self._board[cell_index]
 
-    '''
-        updates subgrid values according to board
-    '''
-    def _update_subgrid_values(self):
-        self._subgrids = [[self._board[index] for index in row] for row in self._subgrid_indexes]
-
+    
     '''
         Creates 2D array representation of group board
     '''
@@ -159,8 +149,51 @@ class Board:
 
 
     '''
-        Prints board of variable size
+        updates subgrid values according to current board
+    '''
+    def _update_subgrid_values(self):
+        self._subgrids = [[self._board[index] for index in row] for row in self.subgrid_indexes]
 
+
+    '''
+        set string board according to current board
+    '''
+    def _set_string_board(self):
+        self._string_board = ''.join(list(self._board.values()))
+
+
+    '''
+        set 2D board according to string board
+    '''
+    def _set_board_2D(self):
+            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
+
+    
+    '''
+        Get functions for board types and group board
+    '''
+    def get_board(self):
+        return self._board
+
+    def get_group_board(self):
+        return self._group_board
+    
+    def get_group_board_2D(self):
+        return self._group_board_2D
+
+    def get_board_string(self):
+        return self._string_board
+
+    def get_board_2D(self):
+        return self._board_2D
+    
+    def new_board(self, difficulty_begin=23, difficulty_end=30):
+        self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
+        self.set_board(BoardGenerator().generate_board(difficulty_begin, difficulty_end))
+
+
+    '''
+        Prints board of variable size
         PARAMS
         width: enum value (small, medium, large) setting the display board width
     '''
@@ -202,40 +235,3 @@ class Board:
                 print()
                 print("-" * (self._max_group_length * 11), end="")
             print()
-
-    '''
-        calls board generator and replaces board with generated board
-    '''
-    def new_board(self):
-        self._group_board = dict((cell, self._digits) for cell in self._cell_indexes)
-        self.set_board(BoardGenerator.generate_board())
-
-    '''
-        Get functions for board types and group board
-    '''
-    def get_board(self):
-        return self._board
-
-    def get_group_board(self):
-        return self._group_board
-    
-    def get_group_board_2D(self):
-        return self._group_board_2D
-
-    def get_board_string(self):
-        return self._string_board
-
-    def get_board_2D(self):
-        return self._board_2D
-    
-    def get_subgrids(self):
-        return self._subgrids
-
-    def get_cell_indexes(self):
-        return self._cell_indexes
-    
-    def get_peer_indexes(self):
-        return self._peer_indexes
-    
-    def get_subgrid_indexes(self):
-        return self._subgrid_indexes
