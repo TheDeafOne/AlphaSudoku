@@ -28,16 +28,21 @@ class CSPS:
         if values is False:
             return False ## Failed earlier
 
-        if all(len(values[s]) == 1 for s in self.cell_indexes):
+        if all(len(values[cell_index]) == 1 for cell_index in self.cell_indexes):
             return values ## Solved!
 
         ## Chose the unfilled square s with the fewest possibilities
-        _,s = min((len(values[s]), s) for s in self.cell_indexes if len(values[s]) > 1)
-        return self.some(self.search(self.assign(values.copy(), s, d))
-                    for d in values[s])
+        _,sm_group_index = min((len(values[cell_index]), cell_index) for cell_index in self.cell_indexes if len(values[cell_index]) > 1)
+        
+        for d in values[sm_group_index]:
+            solution = self.search(self.assign(values.copy(), sm_group_index, d))
+            if solution:
+                return solution
+        return False
 
     def assign(self, values, s, d):
         other_values = values[s].replace(d, '')
+            
         if all(self.eliminate(values, s, d2) for d2 in other_values):
             return values
         else:
@@ -65,13 +70,3 @@ class CSPS:
                 if not self.assign(values, dplaces[0], d):
                     return False
         return values
-    
-    def some(self, seq):
-        for e in seq:
-            if e: 
-                return e
-        return False
-
-        
-        
-        

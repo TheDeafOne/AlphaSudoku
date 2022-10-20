@@ -59,8 +59,7 @@ class AC3:
                     break
             
             if should_prune:   #any([x_val != y_val for y_val in y_domain]): # true if every value in y domain is == x_val
-                print('removed', x_val)
-                self._variables[x] = self._variables[x] - set([x_val])
+                self._variables[x] = self._variables[x].replace(x_val,'')
                 changed = True # domain of X has changed
 
         return changed
