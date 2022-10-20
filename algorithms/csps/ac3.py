@@ -46,14 +46,20 @@ class AC3:
         True if domain of variable x has changed, False otherwise
     '''
     def revise(self, x, y):
-        changed = False
         # grab domains of variables x and y
         x_domain = self._variables[x]
         y_domain = self._variables[y]
-
+        changed = False
         # cycle through x domain and prune domain values accordingly
         for x_val in x_domain:
-            if any([x_val == y_val for y_val in y_domain]): # true if every value in y domain is == x_val
+            should_prune = True
+            for y_val in y_domain:
+                if x_val != y_val:
+                    should_prune = False
+                    break
+            
+            if should_prune:   #any([x_val != y_val for y_val in y_domain]): # true if every value in y domain is == x_val
+                print('removed', x_val)
                 self._variables[x] = self._variables[x] - set([x_val])
                 changed = True # domain of X has changed
 
