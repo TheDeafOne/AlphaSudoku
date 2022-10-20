@@ -57,20 +57,24 @@ class Board:
     def set_board(self, board):
         # parse given board and assign group board accordingly
         parsed_board = self._parse_board(board)
-        new_board = dict(zip(self.cell_indexes, parsed_board))
+        if parsed_board:
+            # update string board, 2d board, dict board, group board, and subgrid values
+            self._board = dict(zip(self.cell_indexes, parsed_board))
+            self._set_string_board()
+            self._set_board_2D()
+            if not self._update_group_board():
+                # value is causing empty sets at at least one point
+                return False
+            self._create_group_board_2D()
 
-        values = dict((cell_index, self._digits) for cell_index in self.cell_indexes)
-        
-        for cell_index, value in new_board.items():
-            if value in self._digits and not self.assign(values, cell_index, value):
-                return False ## (Fail if we can't assign value to cell.)
-        
-        self._group_board = values
-        
-        self._create_group_board_2D()
-        self._string_board = ''.join(parsed_board)
-        self._set_board_2D()
-        return values
+            return True
+        else:
+            # board could not be parsed
+            return False
+
+    def _set_string_board(self):
+        self._string_board = ''.join(list(self._board.values()))
+
 
    
     def _parse_board(self, board):
@@ -94,53 +98,10 @@ class Board:
             return False
 
 
-    def assign(self, values, cell_index, value):
-        other_values = values[cell_index].replace(value, '')
-        if all(self.eliminate(values, cell_index, d2) for d2 in other_values):
-            return self
-        else:
-            return False
-
-
-    def eliminate(self, values, cell_index, value):
-        # possibly use ac3 here
-
-        if value not in values[cell_index]:
-            return values ## Already eliminated
-        values[cell_index] = values[cell_index].replace(value,'')
-        ## (1) If a square cell_index is reduced to one value d2, then eliminate d2 from the peers.
-        if len(values[cell_index]) == 0:
-            return False ## Contradiction: removed last value
-        elif len(values[cell_index]) == 1:
-            d2 = values[cell_index]
-            if not all(self.eliminate(values, s2, d2) for s2 in self.peer_indexes[cell_index]):
-                return False
-        ## (2) If a unit u is reduced to only one place for a value value, then put it there.
-        for u in self.unit_indexes[cell_index]:
-            dplaces = [cell_index for cell_index in u if value in values[cell_index]]
-            if len(dplaces) == 0:
-                return False ## Contradiction: no place for this value
-            elif len(dplaces) == 1:
-                # value can only be in one place in unit; assign it there
-                if not self.assign(values, dplaces[0], value):
-                    return False
-        return values
-
-
-
-
-
-
-
 
 
     def _set_board_2D(self):
             self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
-
-
-
-
-
 
 
     '''
@@ -155,12 +116,12 @@ class Board:
                 peers = self.peer_indexes[cell_index]
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
-                    group = self._group_board[peer] - set(cell)
+                    group = self._group_board[peer].replace(cell,'')
                     self._max_group_length = max(len(group), self._max_group_length)
                     self._group_board[peer] = group
                 
                 # remove cell value from group board
-                self._group_board[cell_index] = set(self._board[cell_index])
+                self._group_board[cell_index] = self._board[cell_index]
 
     
     '''
