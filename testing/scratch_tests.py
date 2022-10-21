@@ -28,17 +28,19 @@ def test_board_grouping():
 def test_ac3():
     board = Board()
     # board.new_board(30,30)
-    board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
+    did_work = board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
+    print(did_work)
     print(board.get_board_string())
     board.display_board("large")
+    board.display_group_board()
     print()
-    indexes = board.get_peer_indexes()
+    indexes = board.peer_indexes
     constraints = [(index, peer) for index in indexes for peer in indexes[index]]
     gb = board.get_group_board()
+    
     ac3 = AC3(gb, constraints)
     
 
-    board.display_group_board()
     new_gb = ac3.ac3()
     print()
 
@@ -97,11 +99,15 @@ def group_board_setting():
 
 def test_backtracking():
     board = Board()
-    board.new_board()
+    # board.new_board(23,23)
+    # board.set_board('800000000003600000070090200050007000000045700000100030001000068008500010090000400')
+    board.new_board(23,23)
+    board.display_group_board()
     csps = CSPS(board)
     b = csps.solve()
     board.set_board(b)
     board.display_board()
+    
     # print(board.get_board_string())
     
 

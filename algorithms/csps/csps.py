@@ -13,8 +13,6 @@ class CSPS:
         self.unit_indexes = board.unit_indexes
         self.cell_indexes = board.cell_indexes
         self._constraints = [(index, peer) for index in self.peer_indexes for peer in self.peer_indexes[index]]
-        # self._ac3 = AC3({},self._constraints)
-        # self._good_board = Board()
         self.solved_board = {}
     
 
@@ -24,49 +22,34 @@ class CSPS:
         return self.solved_board
 
 
-    def search(self, values):
-        if values is False:
-            return False ## Failed earlier
+    def search(self, group_board):
+        if group_board is False:
+            return False
 
-        if all(len(values[cell_index]) == 1 for cell_index in self.cell_indexes):
-            return values ## Solved!
+        if all(len(group_board[cell_index]) == 1 for cell_index in self.cell_indexes):
+            return group_board
 
-        ## Chose the unfilled square s with the fewest possibilities
-        _,sm_group_index = min((len(values[cell_index]), cell_index) for cell_index in self.cell_indexes if len(values[cell_index]) > 1)
+        _,sm_group_index = min((len(group_board[cell_index]), cell_index) for cell_index in self.cell_indexes if len(group_board[cell_index]) > 1)
         
-        for d in values[sm_group_index]:
-            solution = self.search(self.assign(values.copy(), sm_group_index, d))
+        for d in group_board[sm_group_index]:
+            solution = self.search(self.set_value(group_board.copy(), sm_group_index, d))
             if solution:
                 return solution
         return False
 
-    def assign(self, values, s, d):
-        other_values = values[s].replace(d, '')
-            
-        if all(self.eliminate(values, s, d2) for d2 in other_values):
-            return values
+    def set_value(self, group_board, cell_index, value):
+        other_values = group_board[cell_index].replace(value, '')
+        if all(self.propagate(group_board, cell_index, d2) for d2 in other_values):
+            return group_board
         else:
             return False
-
-
-    def eliminate(self, values, s, d):
-        if d not in values[s]:
-            return values ## Already eliminated
-        values[s] = values[s].replace(d,'')
-        ## (1) If a square s is reduced to one value d2, then eliminate d2 from the peers.
-        if len(values[s]) == 0:
-            return False ## Contradiction: removed last value
-        elif len(values[s]) == 1:
-            d2 = values[s]
-            if not all(self.eliminate(values, s2, d2) for s2 in self.peer_indexes[s]):
-                return False
-        ## (2) If a unit u is reduced to only one place for a value d, then put it there.
-        for u in self.unit_indexes[s]:
-            dplaces = [s for s in u if d in values[s]]
-            if len(dplaces) == 0:
-                return False ## Contradiction: no place for this value
-            elif len(dplaces) == 1:
-                # d can only be in one place in unit; assign it there
-                if not self.assign(values, dplaces[0], d):
-                    return False
-        return values
+        
+    def propagate(self, group_board, cell_index, value):
+        if value not in group_board[cell_index]:
+            return group_board
+        group_board[cell_index] = group_board[cell_index].replace(value,'')
+        ac3 = AC3(group_board)
+        solution = ac3.ac3()
+        if solution:
+            return solution
+        return False
