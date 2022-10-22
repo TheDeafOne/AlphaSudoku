@@ -71,12 +71,12 @@ class Board:
             # update string board, 2d board, dict board, group board, and subgrid values
             self._board = dict(zip(self.cell_indexes, parsed_board))
             self._set_string_board()
-            self._set_board_2D()
             self._update_subgrid_values()
-            self._create_group_board_2D()
             if not self._update_group_board():
                 # value is causing empty sets at at least one point
                 return False
+            self._set_board_2D()
+            self._create_group_board_2D()
 
             return True
         else:
@@ -120,7 +120,7 @@ class Board:
     '''
     def _update_group_board(self):
         # cycle through all possible cell indexes
-        for i, cell_index in enumerate(self.cell_indexes):
+        for cell_index in self.cell_indexes:
             cell = self._board[cell_index]
             if cell != '0':
                 # cycle through peers and manage group board accordingly
@@ -128,11 +128,16 @@ class Board:
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
                     group = self._group_board[peer].replace(cell,'')
+                    if len(group) == 0:
+                        return False
                     self._max_group_length = max(len(group), self._max_group_length)
                     self._group_board[peer] = group
                 
                 # remove cell value from group board
+                if len(self._group_board[cell_index]) == 0:
+                    return False
                 self._group_board[cell_index] = self._board[cell_index]
+        return True
 
     
     '''
@@ -186,6 +191,9 @@ class Board:
 
     def get_board_2D(self):
         return self._board_2D
+    
+    def get_subgrids(self):
+        return self._subgrids
     
     def new_board(self, difficulty_begin=23, difficulty_end=30):
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)

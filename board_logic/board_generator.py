@@ -53,4 +53,4 @@ class BoardGenerator:
         # jump to random line and return it
         dataset.seek(offset*self._row_char_count)
         dataset.readline()
-        return dataset.readline().split(',')
+        return dataset.readline().split(',')[0]
