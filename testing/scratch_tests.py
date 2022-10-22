@@ -98,13 +98,17 @@ def group_board_setting():
     
 
 def test_backtracking():
+    import time
+    start = time.perf_counter()
     board = Board()
     # board.new_board(23,23)
-    # board.set_board('800000000003600000070090200050007000000045700000100030001000068008500010090000400')
-    board.new_board(23,23)
-    board.display_group_board()
+    board.set_board('000000000000000000000000000000000000000000000000000000000000000000000000000000400')
+    # board.new_board(23,23)
+    # board.display_group_board()
     csps = CSPS(board)
     b = csps.solve()
+    end = time.perf_counter()
+    print('val',end-start)
     board.set_board(b)
     board.display_board()
     

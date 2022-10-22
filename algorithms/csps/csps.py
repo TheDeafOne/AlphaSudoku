@@ -3,10 +3,11 @@
 '''
 from time import sleep
 from .ac3 import AC3
-from board_logic.board import Board
-from copy import deepcopy
 
 class CSPS:
+    '''
+        backtracking algorithm for sudoku
+    '''
     def __init__(self, board):
         self._board = board.get_group_board()
         self.peer_indexes = board.peer_indexes
@@ -31,25 +32,53 @@ class CSPS:
 
         _,sm_group_index = min((len(group_board[cell_index]), cell_index) for cell_index in self.cell_indexes if len(group_board[cell_index]) > 1)
         
-        for d in group_board[sm_group_index]:
-            solution = self.search(self.set_value(group_board.copy(), sm_group_index, d))
+        for value in group_board[sm_group_index]:
+            solution = self.search(self.remove_value(group_board.copy(), sm_group_index, value))
             if solution:
                 return solution
         return False
 
-    def set_value(self, group_board, cell_index, value):
-        other_values = group_board[cell_index].replace(value, '')
-        if all(self.propagate(group_board, cell_index, d2) for d2 in other_values):
-            return group_board
-        else:
-            return False
+
+    '''
+        removes value from group at cell index and propagates according to remaining group values
+
+        PARAMS
+        group_board: current board state in backtracking stack
+        cell_index: index of cell being set (e.g. A1)
+        value: value being value being removed
+    '''
+    def remove_value(self, group_board, cell_index, value):
+        # remove value from group and get remaining values
+        group = group_board[cell_index].replace(value, '')
+
+        # check that all possible next values are valid solutions
+        for group_value in group:
+            if not self.propagate(group_board, cell_index, group_value):
+                return False
+        return group_board
+    
+
+    '''
+        runs ac3 on current board with new set value
+
+        PARAMS
+        group_board: current board state in backtracking stack
+        cell_index: index of cell being set (e.g. A1)
+        value: value being propagated on
         
+        (group_board[A1] = 123 and value = 1, new group_board[A1] = 23, then run propagation on that)
+
+        RETURNS
+        propagated_board: if ac3 was successful, False otherwise
+    '''
     def propagate(self, group_board, cell_index, value):
-        if value not in group_board[cell_index]:
-            return group_board
+        # remove value from group at cell_index and set group board at cell index to new group
         group_board[cell_index] = group_board[cell_index].replace(value,'')
+
+        # set up ac3 propagation and run on new group_board
         ac3 = AC3(group_board)
-        solution = ac3.ac3()
-        if solution:
-            return solution
-        return False
+        propagated_board = ac3.ac3()
+
+        if propagated_board:
+            return propagated_board
+        return False # ac3 found an inconsistency
