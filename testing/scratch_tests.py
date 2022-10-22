@@ -3,8 +3,7 @@ sys.path.append(os.path.join(sys.path[0], "../"))
 
 from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
-from algorithms.csps.ac3 import AC3
-from algorithms.csps.csps import CSPS
+from algorithms.genetic.genetic import GeneticSolver
 
 board = Board()
 generator = BoardGenerator()
@@ -24,6 +23,7 @@ def test_board_grouping():
     print(board.get_subgrids())
     board.display_board("large")
     # board.display_group_board()
+
 
 def test_ac3():
     board = Board()
@@ -61,32 +61,11 @@ def test_ac3():
         print()
 
     
-def test_backtracking():
-    board = Board()
-    board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
-    csps = CSPS(board)
-    csps.solve(board)
-    # csps._good_board.display_board()
-
-def board_setting():
-    board = Board()
-    board.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
-    print('should be 0')
-    board.display_board()
-
-    new_board = Board()
-    new_board.set_board(board)
-    print('set old board A1: 1, old board values should be A1:1')
-    board.set_board_value('A1', '2')
-    board.display_board()
-    board.display_group_board()
-    print('2d board\n',board.get_board_2D())
-    print('board string\n',board.get_board_string())
-    print('board\n',board.get_board())
-    print('subgrids\n',board.get_subgrids())
-    print('groups\n',board.get_groups())
-    print('group board 2d\n', board.get_group_board_2D())
+def test_genetic():
+    genetic_solver = GeneticSolver()
+    genetic_solver.run()
     
+
 
 def group_board_setting():
     board1 = Board()
@@ -117,9 +96,7 @@ def test_backtracking():
 
 if __name__ == '__main__':
     # test_board_grouping()
-    # test_ac3()
-    # board_setting()
-    # group_board_setting()
-    test_backtracking()
+    test_genetic()
+
 
     pass
