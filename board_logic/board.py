@@ -132,8 +132,9 @@ class Board:
                 for peer in peers:
                     # go to group board and remove cell peer values from group board
                     group = self._group_board[peer].replace(cell,'')
-                    # if len(group) == 0 and self._self_propagate:
-                    #     return False
+                    if len(group) == 0:
+                        continue
+                        # return False
                     self._max_group_length = max(len(group), self._max_group_length)
                     self._group_board[peer] = group
                 
@@ -162,6 +163,10 @@ class Board:
     '''
     def _update_subgrid_values(self):
         self._subgrids = [[self._board[index] for index in row] for row in self.subgrid_indexes]
+
+
+
+    
 
 
     '''
