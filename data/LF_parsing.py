@@ -1,37 +1,38 @@
 import csv
 
 def rewrite():
-    file = open('./data/initial_boards/sudoku_dataset.csv','w', newline='')
+    file = open('./initial_boards/new_sudoku_dataset_tmp.csv','w', newline='')
     writer = csv.writer(file)
-    f = open('./data/initial_boards/sudoku.csv')
+    f = open('./initial_boards/new_sudoku_dataset.csv')
     reader = csv.reader(f)
+    for row in reader:
+        sr = row[0]
+        # print(sr)
+        if len(sr) > 20:
+            writer.writerow([sr])
     
-    vals = {}
-    for line in reader:
-        if len(line) > 0:
-            cnt = line[0].count('0')
-            if cnt in vals:
-                vals[cnt].append(line)
-            else:
-                vals[cnt] = [line]
-
-    for val in sorted(vals.keys()):
-        for row in vals[val]:
-            writer.writerow(row)
+            
 
 def read_sudoku_set():
-    f = open('./data/initial_boards/sudoku_dataset.csv')
+    f = open('./initial_boards/new_sudoku_dataset_tmp.csv')
     reader = csv.reader(f)
     cnt = 0
+    lr = '80'
     for row in reader:
-        if cnt % 90000 == 0:
-            print(len(''.join(row)))
-            row = row[0]
-            print(row, row.count('0'))
-            
+        # if 
+        # if row[2] != lr:
+        #     print(row[2], 'at',cnt)
+        #     lr = row[2]
+        if cnt % 10000 == 0:
+            print(row)
+        # print(len(''.join(row)))
+        # row = row[0]
+        # print(row, row.count('0'))
         cnt += 1
+            
+    print(cnt)
 
 if __name__ == "__main__":
     # rewrite()
-    # read_sudoku_set()
+    read_sudoku_set()
     pass
