@@ -7,24 +7,10 @@ class BoardGenerator:
         ATTRIBUTES
         _dataset_size: number of rows in the current data set
         _row_char_count: number of characters in each row of the dataset
-        _bins: dictionary of board locations in dataset. key: No. clues, value: location in dataset
     '''
     def __init__(self):
-        self._dataset_size = 413422 # number of rows in the dataset
-        self._row_char_count = 165 # number of characters in a given row
-
-        # key: number of clues, value: number of boards in dataset
-        self._bins = {
-            30: 208498, 
-            29: 118817, 
-            28: 56760, 
-            27: 21546, 
-            26: 6304, 
-            25: 1297, 
-            24: 182, 
-            23: 18, 
-            22: 0  # end value for bin edges
-            }
+        self._dataset_size = 4000000 # number of rows in the dataset
+        self._row_char_count = 81 # number of characters in a given row
     
 
     '''
@@ -37,20 +23,20 @@ class BoardGenerator:
         RETURNS
         random sudoku board containing n clues, where n is in the given range
     '''
-    def generate_board(self, difficulty_begin=23, difficulty_end=30):
+    def generate_board(self, difficulty_begin=17, difficulty_end=80):
         # check for invalid clue ranges
         assert difficulty_begin <= difficulty_end
-        assert difficulty_begin > 22
-        assert difficulty_end < 31
+        assert difficulty_begin > 16
+        assert difficulty_end < 81
 
-        end = self._dataset_size - self._bins[difficulty_begin-1]
-        begin = self._dataset_size - self._bins[difficulty_end]
-        
+        begin = (80 - difficulty_end) * 62500 + 1
+        end = (81 - difficulty_begin) * 62500
+
         offset = random.randrange(begin, end)
+        fileNo = str((offset // 1000000) + 1)
+        fileOffset = offset % 1000000
+        dataset = open('../data/initial_boards/sudoku_dataset_' + fileNo + '.csv')
 
-        dataset = open('../data/initial_boards/sudoku_dataset.csv')
-        
-        # jump to random line and return it
-        dataset.seek(offset*self._row_char_count)
-        dataset.readline()
-        return dataset.readline().split(',')[0]
+        # # jump to random line and return it
+        dataset.seek(83 * (fileOffset-1))
+        return dataset.readline()
