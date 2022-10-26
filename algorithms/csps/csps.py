@@ -6,36 +6,73 @@ from .ac3 import AC3
 
 class CSPS:
     '''
-        backtracking algorithm for sudoku
+        constraint propagation and backtracking algorithm for solving sudoku boards
+        
+        ATTRIBUTES
+        _board: unsolved sudoku board
+        solved_board: solved sudoku board
+
+        METHODS
+        solve()
+            returns solution to current board (solves if not already)
+        
+        search(group_board)
+            searches for solution to given group_board and returns if found
+        
+        remove_value(group_board, cell_index, value)
+            removes value from group_board at cell_index and runs propagation on remaining group values
+        
+        propagate(group_board, cell_index, value)
+            runs ac3 on group board when value is set at cell_index in group_board
     '''
     def __init__(self, board):
         self._board = board.get_group_board()
         self.peer_indexes = board.peer_indexes
         self.unit_indexes = board.unit_indexes
         self.cell_indexes = board.cell_indexes
-        self._constraints = [(index, peer) for index in self.peer_indexes for peer in self.peer_indexes[index]]
         self.solved_board = {}
     
 
+    '''
+        solve current board if not yet solved
+
+        RETURNS
+        solved board
+    '''
     def solve(self): 
+        # board not yet solved
         if len(self.solved_board) == 0:
             self.solved_board = self.search(self._board)
         return self.solved_board
 
 
+    '''
+        find board solution
+
+        RETURNS
+        solved board if solution could be found, false otherwise
+    '''
     def search(self, group_board):
+        # previous search failed
         if group_board is False:
             return False
 
+        # all groups have an assigned value
         if all(len(group_board[cell_index]) == 1 for cell_index in self.cell_indexes):
             return group_board
 
+        # smallest group heuristic
         _,sm_group_index = min((len(group_board[cell_index]), cell_index) for cell_index in self.cell_indexes if len(group_board[cell_index]) > 1)
         
+        # recursive search and backtrack
         for value in group_board[sm_group_index]:
             solution = self.search(self.remove_value(group_board.copy(), sm_group_index, value))
+
+            # solution found
             if solution:
                 return solution
+        
+        # no solution found
         return False
 
 
