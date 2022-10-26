@@ -1,15 +1,21 @@
 import csv
 
 def rewrite():
-    file = open('./initial_boards/new_sudoku_dataset_tmp.csv','w', newline='')
-    writer = csv.writer(file)
-    f = open('./initial_boards/new_sudoku_dataset.csv')
+    
+    f = open('./initial_boards/sudoku_dataset.csv')
     reader = csv.reader(f)
+    fNo = 1
+    file = open('./initial_boards/sudoku_dataset_' + str(fNo) +'.csv','w', newline='')
+    writer = csv.writer(file)
+    cnt = 1
     for row in reader:
-        sr = row[0]
+        if cnt % 1000001 == 0:
+            fNo += 1
+            file = open('./initial_boards/sudoku_dataset_' + str(fNo) +'.csv','w', newline='')
+            writer = csv.writer(file)
         # print(sr)
-        if len(sr) > 20:
-            writer.writerow([sr])
+        writer.writerow([row[0]])
+        cnt += 1
     
             
 
@@ -33,6 +39,6 @@ def read_sudoku_set():
     print(cnt)
 
 if __name__ == "__main__":
-    # rewrite()
-    read_sudoku_set()
+    rewrite()
+    # read_sudoku_set()
     pass

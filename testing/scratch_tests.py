@@ -4,7 +4,7 @@ sys.path.append(os.path.join(sys.path[0], "../"))
 from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
 from algorithms.genetic.genetic import GeneticSolver
-
+from algorithms.csps.csps import CSPS
 board = Board()
 generator = BoardGenerator()
 
@@ -15,7 +15,8 @@ def try_set_board():
     print(board.get_board_2D())
 
 def generate_board():
-    print(generator.generate_board())
+    # generator.generate_board()
+    print(str(81-generator.generate_board(18,18).count('0')))
 
 def test_board_grouping():
     nb = generator.generate_board()
@@ -80,12 +81,13 @@ def test_backtracking():
     import time
     start = time.perf_counter()
     board = Board()
-    # board.new_board(23,23)
-    board.set_board('000000000000000000000000000000000000000000000000000000000000000000000000000000400')
-    # board.new_board(23,23)
+    board.new_board()
+    board.display_board()
+    # board.set_board('000000000000000000000000000000000000000000000000000000000000000000000000000000400')
     # board.display_group_board()
     csps = CSPS(board)
     b = csps.solve()
+    # print(b)
     end = time.perf_counter()
     print('val',end-start)
     board.set_board(b)
@@ -96,7 +98,8 @@ def test_backtracking():
 
 if __name__ == '__main__':
     # test_board_grouping()
-    test_genetic()
-
+    # test_genetic()
+    # test_backtracking()
+    generate_board()
 
     pass
