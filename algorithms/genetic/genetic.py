@@ -1,45 +1,51 @@
 import copy
 from email.errors import NonASCIILocalPartDefect
 import random as rand
-
+import sys
 from board_logic import board
 from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class GeneticSolver():
-    C = 100
-    PARENT_POP_SIZE = 20
+    C = 1000
+    PARENT_POP_SIZE = 20 # has to be bigger than cycle
     OFFSPRING_POP_SIZE = 500
     CROSSOVER_PROB = 0.7
-    MUTATION_PROB = 0.4
-    UPDATE_PROB = 0.3
-    BEST_SOLS_RATIO = 0.8
+    MUTATION_PROB = 0.3
+    UPDATE_PROB = 0.9
+    BEST_SOLS_RATIO = .9
 
-    def __init__(self):
+    def __init__(self, board=None):
         self.fitness = 100
-        board_generator = BoardGenerator()
-        self.board = Board()
-        # print()
-        self.board.new_board()
-        print(self.board.get_board_2D())
-        # self.board.set_board(board_generator.generate_board())
-        # print(self)
-        self.board.display_group_board()
+        # board_generator = BoardGenerator()
+        if board:
+            self.board = board
+        else:
+            self.board = Board()
+            # print()
+            self.board.new_board()
+            print(self.board.get_board_2D())
+            # self.board.set_board(board_generator.generate_board())
+            # print(self)
+            self.board.display_group_board()
+        
+        self.original_group_table = self.board.get_group_board()
         # print(self.board.get_group_board())
         # print(self.board.get_group_board_2D())
         
 
     def run(self):
         cycle=1
-        k = 10 # offspring generation factor
-        N = 10 # Number of runs per cycle
+        k = 1 # offspring generation factor
+        N = 1 # Number of runs per cycle
 
 
         # self.fitness_function(self.board.get_board_2D())
 
-        pop_size = self.PARENT_POP_SIZE/cycle
+        # pop_size = self.PARENT_POP_SIZE/cycle
+        
 
         # # DEFINE OFFSPRING SIZE
-        offspring_size = pop_size * k
+        # offspring_size = pop_size * k
 
         # # GENERATE POPULATION
         # self.generate_population(offspring_size)
@@ -48,33 +54,43 @@ class GeneticSolver():
         # while cycle < self.C:
         while self.fitness > 0 and cycle < self.C:
             # DEFINE POP SIZE
-            # pop_size = self.PARENT_POP_SIZE//cycle
-
+            pop_size = self.PARENT_POP_SIZE
+            # print(f"pop_size = {pop_size}")
             # DEFINE OFFSPRING SIZE
-            # offspring_size = pop_size * k
+            offspring_size = pop_size * k
+            # print(f"Offspring size = {offspring_size}")
 
             # GENERATE POPULATION
             population = self.generate_population(offspring_size)
-
+            # print(f"offspring_size")
             # FOR EACH ITERATION i <= N PERFORM CROSSOVER, EVALUATE POPULATION, AND CHOOSE BEST u SOLUTIONS
             for i in range(N):
-                self.crossover(population)
-                eval_pop = {board : self.fitness_function(board) for board in population}
-                sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
-                population = sorted_pop[:self.PARENT_POP_SIZE]
-                fitnesses = [self.fitness_function(i) for i in population]
-                print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
 
-            # top_sols = sorted_pop[0:pop_size]
-            # print(fitnesses)
+                # print(f"len population before crossover {len(population)}")
+                self.crossover(population)
+                # print(f"len population after crossover {len(population)}")
+
+                eval_pop = {board : self.fitness_function(board) for board in population}
+
+
+                sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
+
+                population = sorted_pop[:self.PARENT_POP_SIZE]
+                # print(len(population))
+                fitnesses = [self.fitness_function(i) for i in population]
+                # print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
             # PERFORM MUTATION OVER FEW GOOD SOLUTIONS
             self.mutation(population)
 
             # FIND BEST SOLUTION FOR UPDATING GROUP TABLE
-            self.update_group_table(population[0], population)
+            if self.fitness_function(population[0]) < 1:
+                self.board = population[0]
+            else:
+                self.update_group_table(population[0], population)
             print()
             self.board.display_group_board()
             print()
+            # self.board.display_board()
             self.fitness = self.fitness_function(self.board)
             print(self.fitness)
             # print(f"FITNESS: {self.fitness_function(self.board)}")
@@ -84,39 +100,62 @@ class GeneticSolver():
     # def sort_pop(self, a, b):
         # if self.fitness_function(a) > self.fitness_function(b):
     def update_group_table(self, best_board: Board, boards):
-        gt = self.board.get_group_board()
         best_board_board = best_board.get_board()
+        # best_board_group_board = best_board.get_group_board()
+        # print(best_board_board)
+        # best_board.display_board()
+        # print("123456789")
+        # print(best_board_group_board)
         board_boards = [b.get_board() for b in boards]
         for i in range(81):
+            gt = self.board.get_group_board()
             r = chr(65 + i // 9)
             c = str(i % 9 + 1)
             rc = r+c
             val = best_board_board[rc]
-            if val in gt[rc]:
+            # if not val in peer_vals:
+            if val in gt[rc] and val in self.original_group_table[rc]:
                 if sum(1 if val == b[rc] else 0 for b in board_boards) >= self.BEST_SOLS_RATIO * len(board_boards): # FIX THIS PART
                     if rand.random() < self.UPDATE_PROB:
-                        self.board.set_board_value(rc, val)
+                        peer_vals = [gt[index] for index in best_board.peer_indexes[rc]]
+                        # print(peer_vals)
+                        if not any(peer == set(val) for peer in peer_vals):
+                        # print("does this even work")
+                            self.board.set_board_value(rc, val)
+                            self.board._update_group_board()
+
+
+    # def delete_repetitions(board: Board):
+        # board2d = board.get_board_2D()
+
+        # for idx, row in enumerate(board.get_board_2D()):
+            # delete = [val for val in row if row.count(val) > 1]
+            # row = [0 if val in delete else val for val in row]
+            # board2d[idx] = row
+        
+        # for idx, 
+
+        # for row_idx, row in enumerate(board.get_board_2D()):
+            # for col_idx, val in enumerate(row):
+                # if row.count(val) > 1:
+                    # board2d[row_idx][col_idx] = 0
+                # if 
+                    
+
 
 
     def mutation(self, boards: list[Board]):
-        gt = self.board.get_group_board_2D()
-        # print(len(boards))
+        # gt = self.board.get_group_board_2D()
         for board in boards:
-            # s = board.get_board_string()
             for i in range(81):
                 r = chr(65+ i // 9)
                 c = str(i  % 9 + 1)
                 rc = r+c
                 if rand.random() < self.MUTATION_PROB:
-                    # print(rc)
                     try:
-                        board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
+                        board.set_board_value(rc, rand.choice(self.original_group_table[i//9][i%9]))
                     except Exception as E:
-                        # print()
                         pass
-                        # print(gt[i//9][i%9])
-                        # print(rc)
-                        # print(E)
         
 
     def crossover(self, population):
@@ -140,12 +179,9 @@ class GeneticSolver():
 
     def generate_population(self, pop_size):
         population = []
-        for i in range(self.PARENT_POP_SIZE):
-            # Generate random board from group table
+        for i in range(pop_size):
+
             board = Board(board=self.get_rand_solution_from_gt(self.board.get_group_board_2D()))
-            fitness = self.fitness_function(board)
-            # print(f"fitness = {fitness}")
-            # print(f"board = {board}")
             population.append(board)
 
         return population
@@ -157,13 +193,15 @@ class GeneticSolver():
                 if len(col) > 1:
                     choice = rand.choice(col)
                 else:
-                    # print(col)
                     if len(col) == 0:
-                        print(f"col = {col}")
+                        # print(f"col = {col}")
+                        print("stuck in a bad solution, hoping mutation gets us out", end="\r")
+                        exit(1)
                     try:
                         choice = col[0]
                     except Exception as e:
-                        print(e)
+                        pass
+                        # print(e)
                 new_sol[row_idx][col_idx] = choice
         return new_sol
 
