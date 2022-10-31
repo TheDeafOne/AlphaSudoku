@@ -1,25 +1,25 @@
+from cProfile import run
 from copy import copy,deepcopy
-from email.errors import NonASCIILocalPartDefect
-from math import exp
+from math import exp, log
 import random as rand
 
 from board_logic import board
 from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class HybridSolver():
-    C = 1000
+    C = 4000
     PARENT_POP_SIZE = 20
-    OFFSPRING_POP_SIZE = 500
+    OFFSPRING_POP_SIZE = 300
     CROSSOVER_PROB = 0.7
-    # MUTATION_PROB = 0.4
+    MUTATION_PROB = 0.4
     UPDATE_PROB = 0.3
     BEST_SOLS_RATIO = 0.8
     TEMP_DECAY_FACTOR = 0.95
-    MUTATION_PROB = 0.6
-    NEIGHBORHOOD = 11
-    STARTING_TEMP = 6
+    SA_MUTATION_PROB = 0.6
+    NEIGHBORHOOD = 60
+    STARTING_TEMP = 2
     TEMP_THRESH_FACTOR = 0.01
-    STUCK_THRESHOLD = 150
+    STUCK_THRESHOLD = 40
 
     def __init__(self):
         self.fitness = 100
@@ -29,7 +29,7 @@ class HybridSolver():
         board_generator = BoardGenerator()
         self.board = Board()
         # print()
-        self.board.new_board(difficulty_end=30)
+        self.board.new_board()
         print(self.board.get_board_2D())
         # self.board.set_board(board_generator.generate_board())
         # print(self)
@@ -41,8 +41,8 @@ class HybridSolver():
 
     def run(self):
         cycle=1
-        k = 10 # offspring generation factor
-        N = 10 # Number of runs per cycle
+        k = 5 # offspring generation factor
+        N = 5 # Number of runs per cycle
 
 
         # self.fitness_function(self.board.get_board_2D())
@@ -56,9 +56,16 @@ class HybridSolver():
         # self.generate_population(offspring_size)
         stuck_count = 0
         bestest_fitness = 300
+        factor = self.C / (10 ** (int(log(self.C, 10)) - 1))
+        running_average_fitness = self.fitness
 
         # while cycle < self.C:
         while self.fitness > 0 and cycle < self.C:
+            running_average_fitness += self.fitness
+            running_average_fitness /= 2
+            running_average_fitness = round(running_average_fitness, 2)
+            if cycle % factor == 0:
+                print(f"Fitness {running_average_fitness} at cycle {cycle}")
             # DEFINE POP SIZE
             # pop_size = self.PARENT_POP_SIZE//cycle
 
@@ -70,26 +77,29 @@ class HybridSolver():
 
             # FOR EACH ITERATION i <= N PERFORM CROSSOVER, EVALUATE POPULATION, AND CHOOSE BEST u SOLUTIONS
             for i in range(N):
+                if bestest_fitness == 0:
+                    break
                 self.crossover(population)
                 eval_pop = {board : self.fitness_function(board) for board in population}
                 sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
                 population = sorted_pop[:self.PARENT_POP_SIZE]
 
-                fitnesses = [self.fitness_function(i) for i in population]
-                best_fitness = fitnesses[0]
+                # fitnesses = [self.fitness_function(i) for i in population]
+                best_fitness = self.fitness_function(population[0])
                 if best_fitness == 0:
                     self.board = population[0]
+                    self.fitness = 0
                 if best_fitness < bestest_fitness:
                     bestest_fitness = best_fitness
                     stuck_count = 0
                 else:
                     stuck_count += 1
                 # print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
-
+            if self.fitness == 0:
+                break
             # top_sols = sorted_pop[0:pop_size]
             # print(fitnesses)
             # PERFORM MUTATION OVER FEW GOOD SOLUTIONS
-            # print(f"Stuck Count: {stuck_count}, bestest fitness: {bestest_fitness}")
             if stuck_count < self.STUCK_THRESHOLD:
                 self.mutation(population)
             else:
@@ -111,6 +121,8 @@ class HybridSolver():
             # print(f"FITNESS: {self.fitness_function(self.board)}")
 
             cycle += 1 
+        if self.fitness == 0:
+            self.board.display_board()
 
     # def sort_pop(self, a, b):
         # if self.fitness_function(a) > self.fitness_function(b):
@@ -140,14 +152,12 @@ class HybridSolver():
                     board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
 
     def mutation_sa(self, boards: list[Board]):
-        # self.same_count = 0
         i = 0
         for board in boards:
-            print('*' * int(10 * i / len(boards)))
-            i += 1
+            if i % int(1 + 10 * i  / len(boards)) == 0: 
+                print("*", end="", flush=True)
             temperature = self.STARTING_TEMP
             old_fitness = self.fitness_function(board)
-            og_fitness = old_fitness
             while temperature > self.STARTING_TEMP * self.TEMP_THRESH_FACTOR and old_fitness > 0:
                 og_board = board.get_board()
                 old_fitness = self.fitness_function(board)
@@ -157,20 +167,15 @@ class HybridSolver():
                     og.append((loc, og_board[loc]))
                     board.set_board_value(loc, val)
                 delta_E = self.fitness_function(board) - old_fitness
-                # print(f"At temp {temperature}, comparing {self.fitness_function(board)} and {old_fitness}.")
                 if delta_E <= 0:
                     pass
-                    # print(f"Chose first.")
                 elif rand.random() < exp(-delta_E / temperature):
                     pass
-                    # print(f"chose first randomly with p of {exp(-delta_E / temperature)}.")
                 else:
-                    # print(f"p of {exp(-delta_E / temperature)}.")
                     for loc, val in og:
                         board.set_board_value(loc, val)
                 temperature *= self.TEMP_DECAY_FACTOR
-            # print(f"{og_fitness} - {old_fitness} = {og_fitness - old_fitness}")
-            # input()
+        print()
     
     def find_neighbor(self, board:Board, neighborhood: int):
         gt = self.og_board.get_group_board_2D()
@@ -182,7 +187,7 @@ class HybridSolver():
             r = chr(65+ i // 9)
             c = str(i  % 9 + 1)
             rc = r+c
-            if rand.random() < self.MUTATION_PROB:
+            if rand.random() < self.SA_MUTATION_PROB:
                 delta_op.append((rc, rand.choice(gt[i//9][i%9])))
         return delta_op
 
