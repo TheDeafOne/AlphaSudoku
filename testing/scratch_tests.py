@@ -6,6 +6,7 @@ sys.path.append(os.path.join(sys.path[0], "../"))
 from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
 from algorithms.genetic.genetic import GeneticSolver
+from algorithms.genetic.hybrid import HybridSolver
 from algorithms.csps.csps import CSPS
 board = Board()
 generator = BoardGenerator()
@@ -66,6 +67,10 @@ def test_ac3():
 def test_genetic():
     genetic_solver = GeneticSolver()
     genetic_solver.run()
+
+def test_sa():
+    sa_solver = HybridSolver()
+    sa_solver.run()
     
 
 
@@ -128,9 +133,6 @@ def write_solution_data():
 
 if __name__ == '__main__':
     # test_board_grouping()
-    # test_genetic()
-    # test_backtracking()
-    generate_board()
-    # write_solution_data()
+    test_genetic()
 
     pass
