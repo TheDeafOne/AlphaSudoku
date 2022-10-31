@@ -104,8 +104,8 @@ class GeneticSolver():
         for board in boards:
             # s = board.get_board_string()
             for i in range(81):
-                r = chr(65+ i // 9)
-                c = str(i  % 9 + 1)
+                r = chr(65 + i // 9)
+                c = str(i % 9 + 1)
                 rc = r+c
                 if rand.random() < self.MUTATION_PROB:
                     # print(rc)
