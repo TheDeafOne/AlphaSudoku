@@ -208,7 +208,7 @@ class Board:
         self._board[index] = value
         return self.set_board(self._board)
         
-    def new_board(self, difficulty_begin=23, difficulty_end=30):
+    def new_board(self, difficulty_begin=17, difficulty_end=80):
         self._group_board = dict((cell, self._digits) for cell in self.cell_indexes)
         self.set_board(BoardGenerator().generate_board(difficulty_begin, difficulty_end))
 

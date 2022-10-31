@@ -4,5 +4,5 @@ class Algos:
     def __init__(self):
         pass
 
-    def csps(self):
-        return csps.CSPS()
+    def csps(self, board):
+        return csps.CSPS(board)

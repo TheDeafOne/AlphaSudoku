@@ -1,4 +1,6 @@
 import sys, os
+import csv
+import time
 sys.path.append(os.path.join(sys.path[0], "../"))
 
 from board_logic.board import Board
@@ -15,8 +17,7 @@ def try_set_board():
     print(board.get_board_2D())
 
 def generate_board():
-    # generator.generate_board()
-    print(str(81-generator.generate_board(18,18).count('0')))
+    print(len(generator.generate_board().strip()))
 
 def test_board_grouping():
     nb = generator.generate_board()
@@ -78,13 +79,11 @@ def group_board_setting():
     
 
 def test_backtracking():
-    import time
     start = time.perf_counter()
     board = Board()
-    board.new_board()
-    board.display_board()
-    # board.set_board('000000000000000000000000000000000000000000000000000000000000000000000000000000400')
-    # board.display_group_board()
+    # board.new_board(17,17)
+    # board.set_board('.....6....59.....82....8....45........3........6..3.54...325..6..................')
+    board.display_group_board()
     csps = CSPS(board)
     b = csps.solve()
     # print(b)
@@ -94,12 +93,44 @@ def test_backtracking():
     board.display_board()
     
     # print(board.get_board_string())
-    
+
+
+def write_solution_data():
+    file = open('backtracking-data.csv','w',newline='')
+    file2 = open('bad-times.csv','w',newline='')
+    badWriter = csv.writer(file2)
+    badWriter.writerow(['clues','solve time', 'board'])
+    writer = csv.writer(file)
+    writer.writerow(['clues','solve time'])
+
+    runtimes = 1000
+
+    bd = Board()
+    for i in range(17,80):
+        print(i)
+        for j in range(runtimes):
+            if j % 10 == 0:
+                print(j/runtimes)
+            bd.new_board(i,i)
+            csps = CSPS(bd)
+
+            start = time.perf_counter()
+            csps.solve()
+            end = time.perf_counter()
+            tm = end-start
+            if tm > 2:
+                badWriter.writerow([i,tm,bd.get_board_string()])
+
+            writer.writerow([i,tm])
+
+
+
 
 if __name__ == '__main__':
     # test_board_grouping()
     # test_genetic()
     # test_backtracking()
     generate_board()
+    # write_solution_data()
 
     pass

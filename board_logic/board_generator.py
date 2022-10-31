@@ -39,4 +39,4 @@ class BoardGenerator:
 
         # # jump to random line and return it
         dataset.seek(83 * (fileOffset-1))
-        return dataset.readline()
+        return dataset.readline().strip()
