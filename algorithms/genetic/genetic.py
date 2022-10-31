@@ -182,7 +182,10 @@ class GeneticSolver():
         for i in range(pop_size):
 
             board = Board(board=self.get_rand_solution_from_gt(self.board.get_group_board_2D()))
+            print('\n\n\npopulation')
+            board.display_board()
             population.append(board)
+
 
         return population
 

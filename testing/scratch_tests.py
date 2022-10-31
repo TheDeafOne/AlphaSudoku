@@ -64,6 +64,9 @@ def test_ac3():
 def test_genetic():
     board1 = Board()
     board1.set_board('000130050800970001010008009050000960000064000001000070906087120072400000000003704')
+    # board1.new_board()
+    print(board1.get_board_string())
+    board1.display_board()
 
     genetic_solver = GeneticSolver()
     genetic_solver.run()
