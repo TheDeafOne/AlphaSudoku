@@ -7,6 +7,7 @@ from board_logic.board import Board
 from board_logic.board_generator import BoardGenerator
 from algorithms.genetic.genetic import GeneticSolver
 from algorithms.genetic.hybrid import HybridSolver
+from algorithms.sa.sa import SASolver
 from algorithms.csps.csps import CSPS
 board = Board()
 generator = BoardGenerator()
@@ -133,6 +134,6 @@ def write_solution_data():
 
 if __name__ == '__main__':
     # test_board_grouping()
-    test_genetic()
+    test_sa()
 
     pass

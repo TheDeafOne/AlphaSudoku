@@ -33,7 +33,7 @@ class SASolver():
     def run(self):
         current_board = self.board
         print("Evaluating fitness...")
-        while self.fitness > 10:
+        while self.fitness > 0:
             new_fitness = self.fitness_function(current_board)
             if self.fitness == new_fitness:
                 self.same_count += 1

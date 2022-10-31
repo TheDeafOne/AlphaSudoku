@@ -1,4 +1,4 @@
-import copy
+from copy import copy,deepcopy
 from email.errors import NonASCIILocalPartDefect
 from math import exp
 import random as rand
@@ -7,18 +7,19 @@ from board_logic import board
 from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class HybridSolver():
-    C = 100
+    C = 1000
     PARENT_POP_SIZE = 20
     OFFSPRING_POP_SIZE = 500
     CROSSOVER_PROB = 0.7
-    MUTATION_PROB = 0.4
+    # MUTATION_PROB = 0.4
     UPDATE_PROB = 0.3
     BEST_SOLS_RATIO = 0.8
     TEMP_DECAY_FACTOR = 0.95
-    MUTATION_PROB = 0.8
-    NEIGHBORHOOD = 40
-    STARTING_TEMP = 200
-    SAME_THRESH = 1000
+    MUTATION_PROB = 0.6
+    NEIGHBORHOOD = 11
+    STARTING_TEMP = 6
+    TEMP_THRESH_FACTOR = 0.01
+    STUCK_THRESHOLD = 150
 
     def __init__(self):
         self.fitness = 100
@@ -28,11 +29,12 @@ class HybridSolver():
         board_generator = BoardGenerator()
         self.board = Board()
         # print()
-        self.board.new_board()
+        self.board.new_board(difficulty_end=30)
         print(self.board.get_board_2D())
         # self.board.set_board(board_generator.generate_board())
         # print(self)
         self.board.display_group_board()
+        self.og_board = deepcopy(self.board)
         # print(self.board.get_group_board())
         # print(self.board.get_group_board_2D())
         
@@ -52,7 +54,8 @@ class HybridSolver():
 
         # # GENERATE POPULATION
         # self.generate_population(offspring_size)
-
+        stuck_count = 0
+        bestest_fitness = 300
 
         # while cycle < self.C:
         while self.fitness > 0 and cycle < self.C:
@@ -71,19 +74,38 @@ class HybridSolver():
                 eval_pop = {board : self.fitness_function(board) for board in population}
                 sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
                 population = sorted_pop[:self.PARENT_POP_SIZE]
+
                 fitnesses = [self.fitness_function(i) for i in population]
-                print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
+                best_fitness = fitnesses[0]
+                if best_fitness == 0:
+                    self.board = population[0]
+                if best_fitness < bestest_fitness:
+                    bestest_fitness = best_fitness
+                    stuck_count = 0
+                else:
+                    stuck_count += 1
+                # print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
 
             # top_sols = sorted_pop[0:pop_size]
             # print(fitnesses)
             # PERFORM MUTATION OVER FEW GOOD SOLUTIONS
-            self.mutation(population)
+            # print(f"Stuck Count: {stuck_count}, bestest fitness: {bestest_fitness}")
+            if stuck_count < self.STUCK_THRESHOLD:
+                self.mutation(population)
+            else:
+                stuck_count = 0
+                bestest_fitness = 300
+                self.board = deepcopy(self.og_board)
+                print("Doing SA on population.")
+                self.mutation_sa(population)
 
             # FIND BEST SOLUTION FOR UPDATING GROUP TABLE
             self.update_group_table(population[0], population)
-            print()
-            self.board.display_group_board()
-            print()
+            # print()
+            # self.board.display_group_board()
+            # print()
+            if self.fitness > self.fitness_function(self.board):
+                stuck_count = 0
             self.fitness = self.fitness_function(self.board)
             print(self.fitness)
             # print(f"FITNESS: {self.fitness_function(self.board)}")
@@ -105,45 +127,64 @@ class HybridSolver():
                 if sum(1 if val == b[rc] else 0 for b in board_boards) >= self.BEST_SOLS_RATIO * len(board_boards): # FIX THIS PART
                     if rand.random() < self.UPDATE_PROB:
                         self.board.set_board_value(rc, val)
-
-
+    
     def mutation(self, boards: list[Board]):
-        self.temperature = self.STARTING_TEMP
-        current_board = self.board
-        while self.same_count < self.SAME_THRESH:
-            new_fitness = self.fitness_function(current_board)
-            if self.fitness == new_fitness:
-                self.same_count += 1
-            else:
-                self.same_count = 0
-            self.fitness = new_fitness
-            # print("Find neighbor...")
-            n_board = self.find_neighbor(current_board, self.nbhood)
-            print(f"Evaluating fitness: {self.fitness}...")
-            delta_E = self.fitness_function(n_board) - self.fitness
-            if delta_E < 0:
-                current_board = n_board
-            elif rand.random() < exp(-delta_E / self.temperature):
-                current_board = n_board
-            self.temperature *= self.TEMP_DECAY_FACTOR
+        gt = self.board.get_group_board_2D()
+        # print(len(boards))
+        for board in boards:
+            for i in range(81):
+                r = chr(65 + i // 9)
+                c = str(i % 9 + 1)
+                rc = r+c
+                if rand.random() < self.MUTATION_PROB:
+                    board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
+
+    def mutation_sa(self, boards: list[Board]):
+        # self.same_count = 0
+        i = 0
+        for board in boards:
+            print('*' * int(10 * i / len(boards)))
+            i += 1
+            temperature = self.STARTING_TEMP
+            old_fitness = self.fitness_function(board)
+            og_fitness = old_fitness
+            while temperature > self.STARTING_TEMP * self.TEMP_THRESH_FACTOR and old_fitness > 0:
+                og_board = board.get_board()
+                old_fitness = self.fitness_function(board)
+                delta = self.find_neighbor(board, self.nbhood)
+                og = []
+                for loc, val in delta:
+                    og.append((loc, og_board[loc]))
+                    board.set_board_value(loc, val)
+                delta_E = self.fitness_function(board) - old_fitness
+                # print(f"At temp {temperature}, comparing {self.fitness_function(board)} and {old_fitness}.")
+                if delta_E <= 0:
+                    pass
+                    # print(f"Chose first.")
+                elif rand.random() < exp(-delta_E / temperature):
+                    pass
+                    # print(f"chose first randomly with p of {exp(-delta_E / temperature)}.")
+                else:
+                    # print(f"p of {exp(-delta_E / temperature)}.")
+                    for loc, val in og:
+                        board.set_board_value(loc, val)
+                temperature *= self.TEMP_DECAY_FACTOR
+            # print(f"{og_fitness} - {old_fitness} = {og_fitness - old_fitness}")
+            # input()
     
     def find_neighbor(self, board:Board, neighborhood: int):
-        gt = self.board.get_group_board_2D()
-        neighbor = copy(board)
-        indices = list(range(1,82))
+        gt = self.og_board.get_group_board_2D()
+        indices = list(range(81))
+        delta_op = []
         for _ in range(neighborhood):
-            i = rand.choice(indices)
+            index = rand.randint(0,len(indices) - 1)
+            i = indices.pop(index)
             r = chr(65+ i // 9)
             c = str(i  % 9 + 1)
             rc = r+c
             if rand.random() < self.MUTATION_PROB:
-                # print(rc)
-                try:
-                    neighbor.set_board_value(rc, rand.choice(gt[i//9][i%9]))
-                except Exception as E:
-                    # print()
-                    pass
-        return neighbor
+                delta_op.append((rc, rand.choice(gt[i//9][i%9])))
+        return delta_op
 
     def crossover(self, population):
         # print(rand.randint(0,len(population)))
@@ -195,19 +236,36 @@ class HybridSolver():
 
     def fitness_function(self, board: Board):
         board_list = board.get_board_2D()
-        sub_grids = board.get_subgrids()
+        # sub_grids = board.get_subgrids()
+        col_counts = [{str(i+1): -1 for i in range(9)} for _ in range(9)]
+        row_counts = [{str(i+1): -1 for i in range(9)} for _ in range(9)]
+        tot_counts = {str(i+1): 0 for i in range(9)}
         fitness = 0
-        flattened_list = [item for sublist in board_list for item in sublist]
-        for j in range(1, 10):
-            for i in range(0, 9):
-                # print( ((1-board_list[i].count(f"{j}")) ** 2))
-                fitness += ((1-board_list[i].count(f"{j}")) ** 2)
-                col = [item[i] for item in board_list]
-                fitness += ((1-col.count(f"{j}")) ** 2)
-                # print(((1-col.count(f"{j}")) ** 2))
-                fitness += ((1-sub_grids[i].count(f"{j}")) ** 2)
-                # print(((1-sub_grids[i].count(f"{j}")) ** 2))
-            fitness += abs(flattened_list.count(f"{i}")-9)
+        for r in range(9):
+            for c in range(9):
+                cell = board_list[r][c]
+                if cell == '0': continue
+                col_counts[c][cell] += 1
+                row_counts[r][cell] += 1
+                tot_counts[cell]  += 1
+        for i in range(9):
+            fitness += sum([count ** 2 for count in col_counts[i].values()])
+            fitness += sum([count ** 2 for count in row_counts[i].values()])
+        fitness += sum([abs(count - 9) for count in tot_counts.values()])
+        # flattened_list = [item for sublist in board_list for item in sublist]
+        # for i in range(0, 9):
+        #     num = str(i+1)
+        #     fitness += (1 - col_counts[i])
+        # for j in range(1, 10):
+        #     for i in range(0, 9):
+        #         # print( ((1-board_list[i].count(f"{j}")) ** 2))
+        #         fitness += ((1-board_list[i].count(f"{j}")) ** 2)
+        #         col = [item[i] for item in board_list]
+        #         fitness += ((1-col.count(f"{j}")) ** 2)
+        #         # print(((1-col.count(f"{j}")) ** 2))
+        #         fitness += ((1-sub_grids[i].count(f"{j}")) ** 2)
+        #         # print(((1-sub_grids[i].count(f"{j}")) ** 2))
+        #     fitness += abs(flattened_list.count(f"{i}")-9)
             # print(abs(flattened_list.count(f"{i}")-9))
         # fitness -= 27
         return fitness
