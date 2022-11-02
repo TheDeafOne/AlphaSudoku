@@ -58,6 +58,8 @@ def poll(algorithm):
     else:
         ret = {}
         board = csps._board
+        # if len(csps.solved_board) > 0:
+
         for el in board:
             if len(board[el]) > 1:
                 ret[el] = 0
@@ -65,9 +67,9 @@ def poll(algorithm):
                 ret[el] = board[el]
         return ret
 
-@app.route('/new_board/')
-def new_board():
-    return generator.generate_board()
+# @app.route('/new_board/')
+# def new_board():
+#     return generator.generate_board()
 
 if __name__ == '__main__':
     app.run(debug=True)

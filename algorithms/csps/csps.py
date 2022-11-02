@@ -89,6 +89,7 @@ class CSPS:
     def remove_value(self, group_board, cell_index, value):
         # remove value from group and get remaining values
         group = group_board[cell_index].replace(value, '')
+        self._board = group_board
 
         # check that all possible next values are valid solutions
         for group_value in group:

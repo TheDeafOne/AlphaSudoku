@@ -79,8 +79,9 @@ body {
   }
 
   .string-input {
+    margin-top: 1em;
     font-size: .5em;
-    width: 100%;
+    width: 70%;
     text-align: center;
   }
 
