@@ -1,8 +1,8 @@
 '''
     A constraint satisfaction problem solver
 '''
-from time import sleep
 from .ac3 import AC3
+from board_logic.board import Board
 
 class CSPS:
     '''
@@ -26,6 +26,8 @@ class CSPS:
             runs ac3 on group board when value is set at cell_index in group_board
     '''
     def __init__(self, board):
+        if type(board) is str:
+            board = Board(board)
         self._board = board.get_group_board()
         self.peer_indexes = board.peer_indexes
         self.unit_indexes = board.unit_indexes

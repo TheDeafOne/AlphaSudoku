@@ -24,9 +24,15 @@
   <button onclick="printBoard()">Print Board</button>
   <button onclick="submitBoard()">Submit Board</button>
   <button onclick="run()">Run Board</button>
+  <label for="algorithms">Algorithms:</label>
+  <select name="algorithms" id="algorithms" onchange="change_algo(value);">
+    <option value="genetic">Genetic</option>
+    <option value="backtracking">Backtracking</option>
+  </select>
 </body>
 
 <script>
+  algorithm = "genetic"
   function boardString() {
     var s = "";
     for(let i=0; i<9; i++) for(let j=0;j<9;j++){
@@ -42,7 +48,7 @@
   }
   function submitBoard() {
     let board = boardString();
-    fetch(window.location.href + "submit/" + board).then(
+    fetch(window.location.href + "submit/" +  algorithm + "/" + board).then(
       response => {
         if (!response.ok) {
           throw new Error(`Request failed with status ${reponse.status}`)
@@ -99,6 +105,10 @@
       )
     }
     window.setTimeout(poll_to, time);
+  }
+  function change_algo(algo) {
+    algorithm = algo;
+    console.log(algorithm);
   }
 </script>
 
