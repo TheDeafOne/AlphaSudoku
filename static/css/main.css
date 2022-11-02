@@ -37,6 +37,9 @@ body {
     border: none;
     margin: auto;
   }
+  input[type="number"]:focus {
+    outline-width: 0;
+  }
   .board td, table, tr {
     border: 1px solid black;
     border-collapse: collapse;
@@ -67,3 +70,18 @@ body {
   .submit-area div {
     text-align: center;
   }
+  .label {
+    font-size: .5em;
+    padding: .5em;
+  }
+  .select {
+    font-size: .5em;
+  }
+
+  .string-input {
+    font-size: .5em;
+    width: 100%;
+    text-align: center;
+  }
+
+  
