@@ -1,12 +1,12 @@
 from flask import Flask, render_template
 from algorithms import algorithms
 from threading import Thread
-
+from board_logic.board_generator import BoardGenerator
 from algorithms.genetic.hybrid import HybridSolver
 from algorithms.csps.csps import CSPS
 
 algos = algorithms.Algos()
-
+generator = BoardGenerator()
 
 hybrid : HybridSolver = None
 hybrid_thread : Thread = None
@@ -42,7 +42,7 @@ def run_csps_task():
         csps.solve()
 
 @app.route('/run/<algorithm>')
-def run_hybrid(algorithm):
+def run(algorithm):
     if algorithm == "genetic":
         hybrid_thread = Thread(target=run_hybrid_task)
         hybrid_thread.start()
@@ -51,9 +51,23 @@ def run_hybrid(algorithm):
         hybrid_thread.start()
     return "GOOD"
 
-@app.route('/poll/')
-def poll_hybrid():
-    return hybrid.board.get_board()
+@app.route('/poll/<algorithm>')
+def poll(algorithm):
+    if algorithm == "genetic":
+        return hybrid.board.get_board()
+    else:
+        ret = {}
+        board = csps._board
+        for el in board:
+            if len(board[el]) > 1:
+                ret[el] = 0
+            else:
+                ret[el] = board[el]
+        return ret
+
+@app.route('/new_board/')
+def new_board():
+    return generator.generate_board()
 
 if __name__ == '__main__':
     app.run(debug=True)

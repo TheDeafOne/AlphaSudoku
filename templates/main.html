@@ -25,21 +25,29 @@
   <button onclick="submitBoard()">Submit Board</button>
   <button onclick="run()">Run Board</button>
   <label for="algorithms">Algorithms:</label>
-  <select name="algorithms" id="algorithms" onchange="change_algo(value);">
+  <select name="algorithms" id="algorithms" onchange="changeAlgo(value);">
     <option value="genetic">Genetic</option>
     <option value="backtracking">Backtracking</option>
   </select>
+  <input placeholder="string board" id="board" onchange="parseBoard(board);"/>
 </body>
 
 <script>
   algorithm = "genetic"
+  function parseBoard(string) {
+    for(let i=0; i<9; i++) for(let j=0;j<9;j++){
+      let index = String.fromCharCode(65+i) + String(j+1);
+      let id = "sud_" + index;
+      document.getElementById(id).value = string.charAt(i*9 + j);
+    }
+  }
   function boardString() {
     var s = "";
     for(let i=0; i<9; i++) for(let j=0;j<9;j++){
       let id = "sud_" + String.fromCharCode(65+i) + (j+1);
-      console.log(id);
       s += document.getElementById(id).value;
     }
+    print(s)
     return s;
   }
   function printBoard() {
@@ -57,7 +65,7 @@
     ).catch(console.log);
   }
   function run() {
-    fetch(window.location.href + "run/").then(
+    fetch(window.location.href + "run/" + algorithm).then(
       response => {
         if (!response.ok) {
           throw new Error(`Request failed with status ${reponse.status}`)
@@ -68,7 +76,7 @@
     ).catch(console.log);
   }
   function poll(){
-    return fetch(window.location.href + "poll/").then(
+    return fetch(window.location.href + "poll/" + algorithm).then(
       response => {
         if (!response.ok) {
           throw new Error(`Request failed with status ${reponse.status}`)
@@ -106,9 +114,8 @@
     }
     window.setTimeout(poll_to, time);
   }
-  function change_algo(algo) {
+  function changeAlgo(algo) {
     algorithm = algo;
-    console.log(algorithm);
   }
 </script>
 
