@@ -8,28 +8,31 @@ from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class HybridSolver():
     C = 4000
-    PARENT_POP_SIZE = 20
-    OFFSPRING_POP_SIZE = 300
+    PARENT_POP_SIZE = 15
+    OFFSPRING_POP_SIZE = 200
     CROSSOVER_PROB = 0.7
     MUTATION_PROB = 0.4
     UPDATE_PROB = 0.3
-    BEST_SOLS_RATIO = 0.8
+    BEST_SOLS_RATIO = 0.9
     TEMP_DECAY_FACTOR = 0.95
-    SA_MUTATION_PROB = 0.6
-    NEIGHBORHOOD = 60
-    STARTING_TEMP = 2
-    TEMP_THRESH_FACTOR = 0.01
-    STUCK_THRESHOLD = 40
+    SA_MUTATION_PROB = 0.8
+    NEIGHBORHOOD = 75
+    STARTING_TEMP = 1
+    TEMP_THRESH_FACTOR = 0.1
+    STUCK_THRESHOLD = 60
 
-    def __init__(self):
+    def __init__(self, board=None):
         self.fitness = 100
         self.temperature = self.STARTING_TEMP
         self.nbhood = self.NEIGHBORHOOD
         self.same_count = 0
         board_generator = BoardGenerator()
-        self.board = Board()
-        # print()
-        self.board.new_board()
+        if board is None:
+            self.board = Board()
+            # print()
+            self.board.new_board()
+        else:
+            self.board = Board(board=board)
         print(self.board.get_board_2D())
         # self.board.set_board(board_generator.generate_board())
         # print(self)
