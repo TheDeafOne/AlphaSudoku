@@ -23,7 +23,7 @@
         <!-- <td><str>{{i + 1}}</str></td> -->
         {% for j in range(9) %}
         <td><input title="Block {{(j // 3) + (i // 3) * 3 + 1}}, Row {{i + 1}}, Column {{chr(65 + j)}}" value="0"
-            id="sud_{{chr(65 + j)}}{{i+1}}" type="number" min="0" max="9" /></td>
+            id="sud_{{chr(65 + j)}}{{i+1}}" type="number" min="0" max="9" onkeyup="imposeMinMax(this)"/></td>
         {% endfor %}
       </tr>
       {% endfor %}
@@ -117,6 +117,23 @@
     }
     window.setTimeout(poll_to, time);
   }
+  //https://stackoverflow.com/a/53752458
+function imposeMinMax(el){
+  if(el.value != ""){
+    if(parseInt(el.value) < parseInt(el.min)){
+      el.value = el.min;
+    }
+    if(parseInt(el.value) > parseInt(el.max)){
+      el.value = el.max;
+    }
+    if(el.value.length > 1) {
+      el.value= parseInt(el.value);
+    }
+  }
+  else {
+    el.value = "0";
+  }
+}
 </script>
 
 </html>
