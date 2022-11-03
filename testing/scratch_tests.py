@@ -134,6 +134,7 @@ def write_solution_data():
 
 if __name__ == '__main__':
     # test_board_grouping()
-    test_sa()
+    # test_sa()
+    print(generator.generate_board())
 
     pass

@@ -1,8 +1,9 @@
 '''
     A constraint satisfaction problem solver
 '''
-from time import sleep
 from .ac3 import AC3
+import time
+from board_logic.board import Board
 
 class CSPS:
     '''
@@ -25,7 +26,11 @@ class CSPS:
         propagate(group_board, cell_index, value)
             runs ac3 on group board when value is set at cell_index in group_board
     '''
-    def __init__(self, board):
+    def __init__(self, board, is_game_loop=False):
+        if type(board) is str:
+            board = Board(board)
+        self._is_game_loop = is_game_loop
+        self._next_step = False
         self._board = board.get_group_board()
         self.peer_indexes = board.peer_indexes
         self.unit_indexes = board.unit_indexes
@@ -87,6 +92,12 @@ class CSPS:
     def remove_value(self, group_board, cell_index, value):
         # remove value from group and get remaining values
         group = group_board[cell_index].replace(value, '')
+        self._board = group_board
+        if self._is_game_loop:
+            self._next_step = False
+            while not self._next_step:
+                time.sleep(0.1)
+                
 
         # check that all possible next values are valid solutions
         for group_value in group:

@@ -6,8 +6,8 @@ class Algos:
     def __init__(self):
         pass
 
-    def csps(self, board):
-        return csps.CSPS(board)
+    def csps(self, board, is_game_loop):
+        return csps.CSPS(board, is_game_loop)
     
     def hybrid(self, board):
         return hybrid.HybridSolver(board=board)

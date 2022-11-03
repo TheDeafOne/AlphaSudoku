@@ -13,7 +13,9 @@ class AC3:
         revise(x, y)
             prunes values from domain of variable x with respect to the values in the domain of variable y
     '''
-    def __init__(self, variables={}):
+    def __init__(self, variables={}, game_loop=False):
+        self.game_loop = game_loop
+        self._should_step = True
         self._variables = variables    
         self._arcs = [('A1', 'A3'), ('A1', 'A9'), ('A1', 'I1'), ('A1', 'D1'), ('A1', 'A7'), ('A1', 'A8'), ('A1', 'F1'), ('A1', 'A6'), ('A1', 'B3'), ('A1', 'A5'), ('A1', 'H1'), ('A1', 
 'C3'), ('A1', 'A2'), ('A1', 'E1'), ('A1', 'G1'), ('A1', 'C1'), ('A1', 'B1'), ('A1', 'B2'), ('A1', 'C2'), ('A1', 'A4'), ('A2', 'A3'), ('A2', 'A9'), ('A2', 'A7'), ('A2', 'A8'), ('A2', 'F2'), ('A2', 'A6'), ('A2', 'B3'), ('A2', 'A5'), ('A2', 'D2'), ('A2', 'C3'), ('A2', 'I2'), ('A2', 'C1'), ('A2', 'E2'), ('A2', 'B1'), ('A2', 'B2'), ('A2', 'C2'), ('A2', 'H2'), ('A2', 'G2'), ('A2', 'A1'), ('A2', 'A4'), ('A3', 'A9'), ('A3', 'A7'), ('A3', 'E3'), ('A3', 'A8'), ('A3', 'A6'), ('A3', 'B3'), ('A3', 'D3'), ('A3', 'F3'), ('A3', 'A5'), ('A3', 'C3'), ('A3', 'A2'), ('A3', 'I3'), ('A3', 'C1'), ('A3', 'B1'), ('A3', 'H3'), ('A3', 'B2'), ('A3', 'C2'), ('A3', 'G3'), ('A3', 'A1'), ('A3', 'A4'), ('A4', 'A3'), ('A4', 'B4'), ('A4', 'A9'), ('A4', 'B5'), ('A4', 'A7'), ('A4', 'C4'), ('A4', 'A8'), ('A4', 'I4'), ('A4', 'A6'), ('A4', 'H4'), ('A4', 'G4'), ('A4', 'E4'), ('A4', 'C6'), ('A4', 'B6'), ('A4', 'A5'), ('A4', 'C5'), ('A4', 'A2'), ('A4', 'D4'), ('A4', 'F4'), ('A4', 'A1'), ('A5', 'A3'), ('A5', 'B4'), ('A5', 'E5'), ('A5', 'A9'), ('A5', 'B5'), ('A5', 'A7'), ('A5', 'F5'), ('A5', 'C4'), ('A5', 'A8'), ('A5', 'G5'), ('A5', 'A6'), ('A5', 'D5'), ('A5', 
@@ -82,6 +84,9 @@ class AC3:
                 self._variables[x] = self._variables[x].replace(x_val,'')
                 # print('removed', x_val,'from',x)
                 changed = True # domain of X has changed
+                # if self.game_loop:
+                #     while self._loop_continue:
+
 
         return changed
                 

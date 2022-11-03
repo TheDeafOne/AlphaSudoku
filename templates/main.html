@@ -23,7 +23,7 @@
         <!-- <td><str>{{i + 1}}</str></td> -->
         {% for j in range(9) %}
         <td><input title="Block {{(j // 3) + (i // 3) * 3 + 1}}, Row {{i + 1}}, Column {{chr(65 + j)}}" value="0"
-            id="sud_{{chr(65 + j)}}{{i+1}}" type="number" min="0" max="9" onkeyup="imposeMinMax(this)"/></td>
+            id="sud_{{chr(65 + j)}}{{i+1}}" type="number" min="0" max="9" onkeyup="imposeMinMax(this)" onclick="this.select()"/></td>
         {% endfor %}
       </tr>
       {% endfor %}
@@ -33,10 +33,25 @@
       <div class="pure-u-1-2"><button class="pure-button" onclick="submitBoard()">Submit Board</button></div>
       <div class="pure-u-1-2"> <button class="pure-button" onclick="run()">Run Board</button> </div>
     </div>
+    <label class="label" for="algorithms">Algorithms:</label>
+    <select class="select" name="algorithms" id="algorithms" onchange="changeAlgo(value);">
+      <option value="genetic">Genetic</option>
+      <option value="backtracking">Backtracking</option>
+    </select>
+    <input class="string-input" placeholder="string board" id="board" onchange="parseBoard(this.value);"/>
+
 
 </body>
 
 <script>
+  algorithm = "genetic"
+  function parseBoard(string) {
+    for(let i=0; i<9; i++) for(let j=0;j<9;j++){
+      let index = String.fromCharCode(65+i) + String(j+1);
+      let id = "sud_" + index;
+      document.getElementById(id).value = string[i*9+j];
+    }
+  }
   function boardString() {
     var s = "";
     for (let i = 0; i < 9; i++)
@@ -55,7 +70,7 @@
 
   function submitBoard() {
     let board = boardString();
-    fetch(window.location.href + "submit/" + board).then(
+    fetch(window.location.href + "submit/" +  algorithm + "/" + board).then(
       response => {
         if (!response.ok) {
           throw new Error(`Request failed with status ${reponse.status}`)
@@ -65,7 +80,7 @@
   }
 
   function run() {
-    fetch(window.location.href + "run/").then(
+    fetch(window.location.href + "run/" + algorithm).then(
       response => {
         if (!response.ok) {
           throw new Error(`Request failed with status ${reponse.status}`)
@@ -75,16 +90,15 @@
       }
     ).catch(console.log);
   }
-
-  function poll() {
-    return fetch(window.location.href + "poll/").then(
-        response => {
-          if (!response.ok) {
-            throw new Error(`Request failed with status ${reponse.status}`)
-          }
-          return response.json();
+  function poll(){
+    return fetch(window.location.href + "poll/" + algorithm).then(
+      response => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${reponse.status}`)
         }
-      ).then(json => {
+        return response.json();
+      }
+    ).then(json => {
         var changed = false;
         for (let i = 0; i < 9; i++)
           for (let j = 0; j < 9; j++) {
@@ -134,6 +148,9 @@ function imposeMinMax(el){
     el.value = "0";
   }
 }
+  function changeAlgo(algo) {
+    algorithm = algo;
+  }
 </script>
 
 </html>
