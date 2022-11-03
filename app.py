@@ -30,7 +30,7 @@ def submit_board(algorithm, board_string):
     if algorithm == "genetic":
         hybrid = algos.hybrid(board_string)
     else:
-        csps = algos.csps(board_string)
+        csps = algos.csps(board_string, True)
     return "GOOD"
 
 def run_hybrid_task():
@@ -65,6 +65,7 @@ def poll(algorithm):
                 ret[el] = 0
             else:
                 ret[el] = board[el]
+        csps._next_step = True
         return ret
 
 # @app.route('/new_board/')

@@ -86,7 +86,7 @@
           throw new Error(`Request failed with status ${reponse.status}`)
         }
         console.log("Ran successfully.");
-        poll_timeout(1);
+        poll_timeout(300);
       }
     ).catch(console.log);
   }
