@@ -24,10 +24,10 @@ class Board:
     '''
     def __init__(self, board=None):
         with (
-            open("../data/board_indexes/cells.txt") as cells, 
-            open("../data/board_indexes/peers.txt") as peers,
-            open("../data/board_indexes/units.txt") as units,
-            open("../data/board_indexes/subgrids.txt") as subgrids
+            open("./data/board_indexes/cells.txt") as cells, 
+            open("./data/board_indexes/peers.txt") as peers,
+            open("./data/board_indexes/units.txt") as units,
+            open("./data/board_indexes/subgrids.txt") as subgrids
             ):
             self.cell_indexes = json.load(cells)["cells"]
             self.subgrid_indexes = json.load(subgrids)["subgrids"]
@@ -55,6 +55,13 @@ class Board:
         # initial display board
         self._board = {}
 
+        self._string_board_updated = True
+        self._subgrid_values_updated = True
+
+        self._group_board_valid = True
+        self._board_2D_updated = True
+        self._group_board_2D_valid = True
+
         if board != None:
             self.set_board(board)
         
@@ -73,14 +80,19 @@ class Board:
         if parsed_board:
             # update string board, 2d board, dict board, group board, and subgrid values
             self._board = dict(zip(self.cell_indexes, parsed_board))
-            self._set_string_board()
-            self._update_subgrid_values()
+            # self._set_string_board()
+            self._string_board_updated = False
+            # self._update_subgrid_values()
+            self._subgrid_values_updated = False
 
-            if not self._update_group_board():
-                # value is causing empty sets at at least one point
-                return False
-            self._set_board_2D()
-            self._create_group_board_2D()
+            # if not self._update_group_board():
+            #     # value is causing empty sets at at least one point
+            #     return False
+            self._group_board_valid = False
+            # self._set_board_2D()
+            self._board_2D_updated = False
+            # self._create_group_board_2D()
+            self._group_board_2D_valid = False
 
             return True
         else:
@@ -142,6 +154,7 @@ class Board:
                 # if len(self._group_board[cell_index]) == 0:
                 #     return False
                 self._group_board[cell_index] = self._board[cell_index]
+        self._group_board_valid = True
         return True
 
     
@@ -149,13 +162,16 @@ class Board:
         Creates 2D array representation of group board
     '''
     def _create_group_board_2D(self):
+        if not self._group_board_valid:
+            self._update_group_board()
         group_board_2D = [[]]
         for i, cell_index in enumerate(self._group_board):
             group_board_2D[-1].append(list(self._group_board[cell_index]))
             if (i + 1) % 9 == 0 and i != 80:
                 group_board_2D.append([])
 
-        self._group_board_2D = group_board_2D           
+        self._group_board_2D = group_board_2D   
+        self._group_board_2D_valid = True        
 
 
     '''
@@ -163,6 +179,7 @@ class Board:
     '''
     def _update_subgrid_values(self):
         self._subgrids = [[self._board[index] for index in row] for row in self.subgrid_indexes]
+        self._subgrid_values_updated = True
 
 
 
@@ -174,13 +191,17 @@ class Board:
     '''
     def _set_string_board(self):
         self._string_board = ''.join(list(self._board.values()))
+        self._string_board_updated = True
 
 
     '''
         set 2D board according to string board
     '''
     def _set_board_2D(self):
-            self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
+        if not self._string_board_updated:
+            self._set_string_board()
+        self._board_2D = [[self._string_board[col + (9 * row)] for col in range(9)] for row in range(9)]
+        self._board_2D_updated = True
 
     
     '''
@@ -190,18 +211,28 @@ class Board:
         return self._board
 
     def get_group_board(self):
+        if not self._group_board_valid:
+            self._update_group_board()
         return self._group_board
     
     def get_group_board_2D(self):
+        if not self._group_board_2D_valid:
+            self._create_group_board_2D()
         return self._group_board_2D
 
     def get_board_string(self):
+        if not self._string_board_updated:
+            self._set_string_board()
         return self._string_board
 
     def get_board_2D(self):
+        if not self._board_2D_updated:
+            self._set_board_2D()
         return self._board_2D
     
     def get_subgrids(self):
+        if not self._subgrid_values_updated:
+            self._update_subgrid_values()
         return self._subgrids
 
     def set_board_value(self, index, value):
@@ -229,7 +260,8 @@ class Board:
         elif width == "large":
             partition_multiplier = 35
             space = "  "
-
+        if not self._board_2D_updated:
+            self._set_board_2D()
         for i, row in enumerate(self._board_2D):
             for j, cell in enumerate(row):
                 col_mod = j % 3
@@ -247,6 +279,8 @@ class Board:
         Prints group board
     '''
     def display_group_board(self):
+        if not self._group_board_2D_valid:
+            self._create_group_board_2D()
         for i, row in enumerate(self._group_board_2D):
             for j, val in enumerate(row):
                 print("".join(val).ljust(self._max_group_length + 1, " "), end="")

@@ -1,37 +1,51 @@
-import copy
-from email.errors import NonASCIILocalPartDefect
+from cProfile import run
+from copy import copy,deepcopy
+from math import exp, log
 import random as rand
 
 from board_logic import board
 from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
-class GeneticSolver():
-    C = 100
-    PARENT_POP_SIZE = 20
-    OFFSPRING_POP_SIZE = 500
+class HybridSolver():
+    C = 4000
+    PARENT_POP_SIZE = 15
+    OFFSPRING_POP_SIZE = 200
     CROSSOVER_PROB = 0.7
     MUTATION_PROB = 0.4
     UPDATE_PROB = 0.3
-    BEST_SOLS_RATIO = 0.8
+    BEST_SOLS_RATIO = 0.9
+    TEMP_DECAY_FACTOR = 0.95
+    SA_MUTATION_PROB = 0.8
+    NEIGHBORHOOD = 75
+    STARTING_TEMP = 1
+    TEMP_THRESH_FACTOR = 0.1
+    STUCK_THRESHOLD = 60
 
-    def __init__(self):
+    def __init__(self, board=None):
         self.fitness = 100
+        self.temperature = self.STARTING_TEMP
+        self.nbhood = self.NEIGHBORHOOD
+        self.same_count = 0
         board_generator = BoardGenerator()
-        self.board = Board()
-        # print()
-        self.board.new_board()
+        if board is None:
+            self.board = Board()
+            # print()
+            self.board.new_board()
+        else:
+            self.board = Board(board=board)
         print(self.board.get_board_2D())
         # self.board.set_board(board_generator.generate_board())
         # print(self)
         self.board.display_group_board()
+        self.og_board = deepcopy(self.board)
         # print(self.board.get_group_board())
         # print(self.board.get_group_board_2D())
         
 
     def run(self):
         cycle=1
-        k = 10 # offspring generation factor
-        N = 10 # Number of runs per cycle
+        k = 5 # offspring generation factor
+        N = 5 # Number of runs per cycle
 
 
         # self.fitness_function(self.board.get_board_2D())
@@ -43,10 +57,18 @@ class GeneticSolver():
 
         # # GENERATE POPULATION
         # self.generate_population(offspring_size)
-
+        stuck_count = 0
+        bestest_fitness = 300
+        factor = self.C / (10 ** (int(log(self.C, 10)) - 1))
+        running_average_fitness = self.fitness
 
         # while cycle < self.C:
         while self.fitness > 0 and cycle < self.C:
+            running_average_fitness += self.fitness
+            running_average_fitness /= 2
+            running_average_fitness = round(running_average_fitness, 2)
+            if cycle % factor == 0:
+                print(f"Fitness {running_average_fitness} at cycle {cycle}")
             # DEFINE POP SIZE
             # pop_size = self.PARENT_POP_SIZE//cycle
 
@@ -58,28 +80,52 @@ class GeneticSolver():
 
             # FOR EACH ITERATION i <= N PERFORM CROSSOVER, EVALUATE POPULATION, AND CHOOSE BEST u SOLUTIONS
             for i in range(N):
+                if bestest_fitness == 0:
+                    break
                 self.crossover(population)
                 eval_pop = {board : self.fitness_function(board) for board in population}
                 sorted_pop = [i for i in sorted(eval_pop, key=eval_pop.get)]
                 population = sorted_pop[:self.PARENT_POP_SIZE]
-                fitnesses = [self.fitness_function(i) for i in population]
-                print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
 
+                # fitnesses = [self.fitness_function(i) for i in population]
+                best_fitness = self.fitness_function(population[0])
+                if best_fitness == 0:
+                    self.board = population[0]
+                    self.fitness = 0
+                if best_fitness < bestest_fitness:
+                    bestest_fitness = best_fitness
+                    stuck_count = 0
+                else:
+                    stuck_count += 1
+                # print(f"AVERAGE FITNESS OF POP = {sum(fitnesses)/len(fitnesses)}")
+            if self.fitness == 0:
+                break
             # top_sols = sorted_pop[0:pop_size]
             # print(fitnesses)
             # PERFORM MUTATION OVER FEW GOOD SOLUTIONS
-            self.mutation(population)
+            if stuck_count < self.STUCK_THRESHOLD:
+                self.mutation(population)
+            else:
+                stuck_count = 0
+                bestest_fitness = 300
+                self.board = deepcopy(self.og_board)
+                print("Doing SA on population.")
+                self.mutation_sa(population)
 
             # FIND BEST SOLUTION FOR UPDATING GROUP TABLE
             self.update_group_table(population[0], population)
-            print()
-            self.board.display_group_board()
-            print()
+            # print()
+            # self.board.display_group_board()
+            # print()
+            if self.fitness > self.fitness_function(self.board):
+                stuck_count = 0
             self.fitness = self.fitness_function(self.board)
             print(self.fitness)
             # print(f"FITNESS: {self.fitness_function(self.board)}")
 
             cycle += 1 
+        if self.fitness == 0:
+            self.board.display_board()
 
     # def sort_pop(self, a, b):
         # if self.fitness_function(a) > self.fitness_function(b):
@@ -96,28 +142,57 @@ class GeneticSolver():
                 if sum(1 if val == b[rc] else 0 for b in board_boards) >= self.BEST_SOLS_RATIO * len(board_boards): # FIX THIS PART
                     if rand.random() < self.UPDATE_PROB:
                         self.board.set_board_value(rc, val)
-
-
+    
     def mutation(self, boards: list[Board]):
         gt = self.board.get_group_board_2D()
         # print(len(boards))
         for board in boards:
-            # s = board.get_board_string()
             for i in range(81):
                 r = chr(65 + i // 9)
                 c = str(i % 9 + 1)
                 rc = r+c
                 if rand.random() < self.MUTATION_PROB:
-                    # print(rc)
-                    try:
-                        board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
-                    except Exception as E:
-                        # print()
-                        pass
-                        # print(gt[i//9][i%9])
-                        # print(rc)
-                        # print(E)
-        
+                    board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
+
+    def mutation_sa(self, boards: list[Board]):
+        i = 0
+        for board in boards:
+            if i % int(1 + 10 * i  / len(boards)) == 0: 
+                print("*", end="", flush=True)
+            temperature = self.STARTING_TEMP
+            old_fitness = self.fitness_function(board)
+            while temperature > self.STARTING_TEMP * self.TEMP_THRESH_FACTOR and old_fitness > 0:
+                og_board = board.get_board()
+                old_fitness = self.fitness_function(board)
+                delta = self.find_neighbor(board, self.nbhood)
+                og = []
+                for loc, val in delta:
+                    og.append((loc, og_board[loc]))
+                    board.set_board_value(loc, val)
+                delta_E = self.fitness_function(board) - old_fitness
+                if delta_E <= 0:
+                    pass
+                elif rand.random() < exp(-delta_E / temperature):
+                    pass
+                else:
+                    for loc, val in og:
+                        board.set_board_value(loc, val)
+                temperature *= self.TEMP_DECAY_FACTOR
+        print()
+    
+    def find_neighbor(self, board:Board, neighborhood: int):
+        gt = self.og_board.get_group_board_2D()
+        indices = list(range(81))
+        delta_op = []
+        for _ in range(neighborhood):
+            index = rand.randint(0,len(indices) - 1)
+            i = indices.pop(index)
+            r = chr(65+ i // 9)
+            c = str(i  % 9 + 1)
+            rc = r+c
+            if rand.random() < self.SA_MUTATION_PROB:
+                delta_op.append((rc, rand.choice(gt[i//9][i%9])))
+        return delta_op
 
     def crossover(self, population):
         # print(rand.randint(0,len(population)))
@@ -169,19 +244,36 @@ class GeneticSolver():
 
     def fitness_function(self, board: Board):
         board_list = board.get_board_2D()
-        sub_grids = board.get_subgrids()
+        # sub_grids = board.get_subgrids()
+        col_counts = [{str(i+1): -1 for i in range(9)} for _ in range(9)]
+        row_counts = [{str(i+1): -1 for i in range(9)} for _ in range(9)]
+        tot_counts = {str(i+1): 0 for i in range(9)}
         fitness = 0
-        flattened_list = [item for sublist in board_list for item in sublist]
-        for j in range(1, 10):
-            for i in range(0, 9):
-                # print( ((1-board_list[i].count(f"{j}")) ** 2))
-                fitness += ((1-board_list[i].count(f"{j}")) ** 2)
-                col = [item[i] for item in board_list]
-                fitness += ((1-col.count(f"{j}")) ** 2)
-                # print(((1-col.count(f"{j}")) ** 2))
-                fitness += ((1-sub_grids[i].count(f"{j}")) ** 2)
-                # print(((1-sub_grids[i].count(f"{j}")) ** 2))
-            fitness += abs(flattened_list.count(f"{i}")-9)
+        for r in range(9):
+            for c in range(9):
+                cell = board_list[r][c]
+                if cell == '0': continue
+                col_counts[c][cell] += 1
+                row_counts[r][cell] += 1
+                tot_counts[cell]  += 1
+        for i in range(9):
+            fitness += sum([count ** 2 for count in col_counts[i].values()])
+            fitness += sum([count ** 2 for count in row_counts[i].values()])
+        fitness += sum([abs(count - 9) for count in tot_counts.values()])
+        # flattened_list = [item for sublist in board_list for item in sublist]
+        # for i in range(0, 9):
+        #     num = str(i+1)
+        #     fitness += (1 - col_counts[i])
+        # for j in range(1, 10):
+        #     for i in range(0, 9):
+        #         # print( ((1-board_list[i].count(f"{j}")) ** 2))
+        #         fitness += ((1-board_list[i].count(f"{j}")) ** 2)
+        #         col = [item[i] for item in board_list]
+        #         fitness += ((1-col.count(f"{j}")) ** 2)
+        #         # print(((1-col.count(f"{j}")) ** 2))
+        #         fitness += ((1-sub_grids[i].count(f"{j}")) ** 2)
+        #         # print(((1-sub_grids[i].count(f"{j}")) ** 2))
+        #     fitness += abs(flattened_list.count(f"{i}")-9)
             # print(abs(flattened_list.count(f"{i}")-9))
         # fitness -= 27
         return fitness

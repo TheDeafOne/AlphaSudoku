@@ -4,4 +4,85 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #444;
   }
+  body {
+    background-color: #333;
+  }
+  .board {
+    text-align: center;
+    font-size: 2em;
+    padding: 2em;
+    margin: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 12em;
+    background-color: white;
+    border-radius: .25em;
+  }
+  .board>table {
+    margin-right: auto;
+    margin-left: auto;
+  }
+  input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          display: none;
+        }
+  input[type="number"] {
+    text-align: center;
+    width: 1em;
+    border: none;
+    margin: auto;
+  }
+  input[type="number"]::selected {
+    width: 1em;
+    border: none;
+    margin: auto;
+  }
+  input[type="number"]:focus {
+    outline-width: 0;
+  }
+  .board td, table, tr {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  .board tr td:nth-child(3n) {
+    border-right-width: 5px;
+  }
+  .board tr td:nth-child(3n-2) {
+    border-left-width: 5px;
+  }
+  .board tr:nth-child(3n) {
+    border-bottom-width: 5px;
+  }
+  .board tr:nth-child(3n-2) {
+    border-top-width: 5px;
+  }
+  .board table {
+    border-radius: 3px;
+  }
+  .submit-area {
+    font-size: .5em;
+    padding: .5em;
+  }
+  .submit-area button {
+    width: 80%;
+  }
+
+  .submit-area div {
+    text-align: center;
+  }
+  .label {
+    font-size: .5em;
+    padding: .5em;
+  }
+  .select {
+    font-size: .5em;
+  }
+
+  .string-input {
+    margin-top: 1em;
+    font-size: .5em;
+    width: 70%;
+    text-align: center;
+  }
+
   

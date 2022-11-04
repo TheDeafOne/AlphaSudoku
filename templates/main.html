@@ -1,13 +1,156 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Sudoku Solver</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  </head>
-  <body>
-    <header>
-        <h1>
-            hey
-        </h1>
-  </body>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Sudoku Solver</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+    integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="board">
+    <h3>Sudoku Solver</h3>
+    <table>
+      <!-- <th></th> -->
+      {% for j in range(9) %}
+      <!-- <th>{{chr(65 + j)}}</th> -->
+      {% endfor %}
+      {% for i in range(9) %}
+      <tr>
+        <!-- <td><str>{{i + 1}}</str></td> -->
+        {% for j in range(9) %}
+        <td><input title="Block {{(j // 3) + (i // 3) * 3 + 1}}, Row {{i + 1}}, Column {{chr(65 + j)}}" value="0"
+            id="sud_{{chr(65 + j)}}{{i+1}}" type="number" min="0" max="9" onkeyup="imposeMinMax(this)" onclick="this.select()"/></td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="pure-g submit-area">
+      <!-- <button class="pure-button pure-u-1-3" onclick="printBoard()">Print Board</button> -->
+      <div class="pure-u-1-2"><button class="pure-button" onclick="submitBoard()">Submit Board</button></div>
+      <div class="pure-u-1-2"> <button class="pure-button" onclick="run()">Run Board</button> </div>
+    </div>
+    <label class="label" for="algorithms">Algorithms:</label>
+    <select class="select" name="algorithms" id="algorithms" onchange="changeAlgo(value);">
+      <option value="genetic">Genetic</option>
+      <option value="backtracking">Backtracking</option>
+    </select>
+    <input class="string-input" placeholder="string board" id="board" onchange="parseBoard(this.value);"/>
+
+
+</body>
+
+<script>
+  algorithm = "genetic"
+  function parseBoard(string) {
+    for(let i=0; i<9; i++) for(let j=0;j<9;j++){
+      let index = String.fromCharCode(65+i) + String(j+1);
+      let id = "sud_" + index;
+      document.getElementById(id).value = string[i*9+j];
+    }
+  }
+  function boardString() {
+    var s = "";
+    for (let i = 0; i < 9; i++)
+      for (let j = 0; j < 9; j++) {
+        let id = "sud_" + String.fromCharCode(65 + i) + (j + 1);
+        console.log(id);
+        s += document.getElementById(id).value;
+      }
+    return s;
+  }
+
+  function printBoard() {
+    var s = boardString();
+    console.log(s);
+  }
+
+  function submitBoard() {
+    let board = boardString();
+    fetch(window.location.href + "submit/" +  algorithm + "/" + board).then(
+      response => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${reponse.status}`)
+        }
+      }
+    ).catch(console.log);
+  }
+
+  function run() {
+    fetch(window.location.href + "run/" + algorithm).then(
+      response => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${reponse.status}`)
+        }
+        console.log("Ran successfully.");
+        poll_timeout(300);
+      }
+    ).catch(console.log);
+  }
+  function poll(){
+    return fetch(window.location.href + "poll/" + algorithm).then(
+      response => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${reponse.status}`)
+        }
+        return response.json();
+      }
+    ).then(json => {
+        var changed = false;
+        for (let i = 0; i < 9; i++)
+          for (let j = 0; j < 9; j++) {
+            let index = String.fromCharCode(65 + i) + String(j + 1);
+            let id = "sud_" + index;
+            console.log(json[index]);
+            if (document.getElementById(id).value != json[index]) {
+              document.getElementById(id).style.backgroundColor = "yellow";
+              document.getElementById(id).value = json[index];
+              changed = true;
+            } else {
+              document.getElementById(id).style.backgroundColor = "white";
+            }
+
+          }
+        return true;
+      })
+      .catch(console.log);
+  }
+
+  function poll_timeout(time) {
+    console.log("Polling with delay", time);
+
+    function poll_to() {
+      poll().then(
+        success => {
+          if (success) window.setTimeout(poll_to, time);
+        }
+      )
+    }
+    window.setTimeout(poll_to, time);
+  }
+  //https://stackoverflow.com/a/53752458
+function imposeMinMax(el){
+  if(el.value != ""){
+    if(parseInt(el.value) < parseInt(el.min)){
+      el.value = el.min;
+    }
+    if(parseInt(el.value) > parseInt(el.max)){
+      el.value = el.max;
+    }
+    if(el.value.length > 1) {
+      el.value= parseInt(el.value);
+    }
+  }
+  else {
+    el.value = "0";
+  }
+}
+  function changeAlgo(algo) {
+    algorithm = algo;
+  }
+</script>
+
 </html>
