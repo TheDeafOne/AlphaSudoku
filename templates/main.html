@@ -100,6 +100,17 @@
             }
 
           }
+          
+          for (let i = 0; i < 9; i++) {
+            let dups_col = new Array(9);
+            let dups_row = new Array(9);
+            let dups_block = new Array(9);
+            for (let j = 0; j < 9; j++) {
+              let index_row = String.fromCharCode(65 + i) + String(j + 1);
+              let index_col = String.fromCharCode(65 + j) + String(i + 1);
+              let index_block = 
+            }
+          }
         return true;
       })
       .catch(console.log);
