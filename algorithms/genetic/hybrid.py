@@ -7,19 +7,19 @@ from board_logic import board
 from board_logic.board_generator import BoardGenerator
 from board_logic.board import Board
 class HybridSolver():
-    C = 4000
-    PARENT_POP_SIZE = 15
-    OFFSPRING_POP_SIZE = 200
+    C = 1000
+    PARENT_POP_SIZE = 40
+    OFFSPRING_POP_SIZE = 100
     CROSSOVER_PROB = 0.7
     MUTATION_PROB = 0.4
-    UPDATE_PROB = 0.3
+    UPDATE_PROB = 0.8
     BEST_SOLS_RATIO = 0.9
     TEMP_DECAY_FACTOR = 0.95
-    SA_MUTATION_PROB = 0.8
-    NEIGHBORHOOD = 75
-    STARTING_TEMP = 1
-    TEMP_THRESH_FACTOR = 0.1
-    STUCK_THRESHOLD = 60
+    SA_MUTATION_PROB = 0.2
+    NEIGHBORHOOD = 81
+    STARTING_TEMP = 1.5
+    TEMP_THRESH_FACTOR = 0.05
+    STUCK_THRESHOLD = 100
 
     def __init__(self, board=None):
         self.fitness = 100
@@ -33,10 +33,10 @@ class HybridSolver():
             self.board.new_board()
         else:
             self.board = Board(board=board)
-        print(self.board.get_board_2D())
+        # print(self.board.get_board_2D())
         # self.board.set_board(board_generator.generate_board())
         # print(self)
-        self.board.display_group_board()
+        # self.board.display_group_board()
         self.og_board = deepcopy(self.board)
         # print(self.board.get_group_board())
         # print(self.board.get_group_board_2D())
@@ -44,8 +44,8 @@ class HybridSolver():
 
     def run(self):
         cycle=1
-        k = 5 # offspring generation factor
-        N = 5 # Number of runs per cycle
+        k = 10 # offspring generation factor
+        N = 10 # Number of runs per cycle
 
 
         # self.fitness_function(self.board.get_board_2D())
@@ -67,8 +67,8 @@ class HybridSolver():
             running_average_fitness += self.fitness
             running_average_fitness /= 2
             running_average_fitness = round(running_average_fitness, 2)
-            if cycle % factor == 0:
-                print(f"Fitness {running_average_fitness} at cycle {cycle}")
+            # if cycle % factor == 0:
+            #     print(f"Fitness {running_average_fitness} at cycle {cycle}")
             # DEFINE POP SIZE
             # pop_size = self.PARENT_POP_SIZE//cycle
 
@@ -109,7 +109,7 @@ class HybridSolver():
                 stuck_count = 0
                 bestest_fitness = 300
                 self.board = deepcopy(self.og_board)
-                print("Doing SA on population.")
+                # print("Doing SA on population.")
                 self.mutation_sa(population)
 
             # FIND BEST SOLUTION FOR UPDATING GROUP TABLE
@@ -120,12 +120,12 @@ class HybridSolver():
             if self.fitness > self.fitness_function(self.board):
                 stuck_count = 0
             self.fitness = self.fitness_function(self.board)
-            print(self.fitness)
+            # print(self.fitness)
             # print(f"FITNESS: {self.fitness_function(self.board)}")
 
             cycle += 1 
-        if self.fitness == 0:
-            self.board.display_board()
+        # if self.fitness == 0:
+        #     self.board.display_board()
 
     # def sort_pop(self, a, b):
         # if self.fitness_function(a) > self.fitness_function(b):
@@ -157,8 +157,8 @@ class HybridSolver():
     def mutation_sa(self, boards: list[Board]):
         i = 0
         for board in boards:
-            if i % int(1 + 10 * i  / len(boards)) == 0: 
-                print("*", end="", flush=True)
+            # if i % int(1 + 10 * i  / len(boards)) == 0: 
+            #     print("*", end="", flush=True)
             temperature = self.STARTING_TEMP
             old_fitness = self.fitness_function(board)
             while temperature > self.STARTING_TEMP * self.TEMP_THRESH_FACTOR and old_fitness > 0:
@@ -178,7 +178,7 @@ class HybridSolver():
                     for loc, val in og:
                         board.set_board_value(loc, val)
                 temperature *= self.TEMP_DECAY_FACTOR
-        print()
+        # print()
     
     def find_neighbor(self, board:Board, neighborhood: int):
         gt = self.og_board.get_group_board_2D()

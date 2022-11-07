@@ -24,10 +24,10 @@ class Board:
     '''
     def __init__(self, board=None):
         with (
-            open("./data/board_indexes/cells.txt") as cells, 
-            open("./data/board_indexes/peers.txt") as peers,
-            open("./data/board_indexes/units.txt") as units,
-            open("./data/board_indexes/subgrids.txt") as subgrids
+            open("../data/board_indexes/cells.txt") as cells, 
+            open("../data/board_indexes/peers.txt") as peers,
+            open("../data/board_indexes/units.txt") as units,
+            open("../data/board_indexes/subgrids.txt") as subgrids
             ):
             self.cell_indexes = json.load(cells)["cells"]
             self.subgrid_indexes = json.load(subgrids)["subgrids"]
