@@ -34,22 +34,15 @@ class HybridSolver():
         else:
             self.board = Board(board=board)
         print(self.board.get_board_2D())
-        # self.board.set_board(board_generator.generate_board())
-        # print(self)
         self.board.display_group_board()
         self.og_board = deepcopy(self.board)
-        # print(self.board.get_group_board())
-        # print(self.board.get_group_board_2D())
         
 
     def run(self):
         cycle=1
         k = 5 # offspring generation factor
         N = 5 # Number of runs per cycle
-
-
-        # self.fitness_function(self.board.get_board_2D())
-
+        
         pop_size = self.PARENT_POP_SIZE/cycle
 
         # # DEFINE OFFSPRING SIZE
@@ -130,6 +123,11 @@ class HybridSolver():
     # def sort_pop(self, a, b):
         # if self.fitness_function(a) > self.fitness_function(b):
     def update_group_table(self, best_board: Board, boards):
+        """
+            Updates the group table probabilistically using the best board as an informant for which cells to fix
+        
+        """
+
         gt = self.board.get_group_board()
         best_board_board = best_board.get_board()
         board_boards = [b.get_board() for b in boards]
@@ -144,6 +142,10 @@ class HybridSolver():
                         self.board.set_board_value(rc, val)
     
     def mutation(self, boards: list[Board]):
+        """
+            Performs mutation as defined in depth in the paper
+        """
+
         gt = self.board.get_group_board_2D()
         # print(len(boards))
         for board in boards:
@@ -155,6 +157,9 @@ class HybridSolver():
                     board.set_board_value(rc, rand.choice(gt[i//9][i%9]))
 
     def mutation_sa(self, boards: list[Board]):
+        """
+        Performs mutation by performing simulated annealing as described in depth in the paper
+        """
         i = 0
         for board in boards:
             if i % int(1 + 10 * i  / len(boards)) == 0: 
@@ -181,6 +186,9 @@ class HybridSolver():
         print()
     
     def find_neighbor(self, board:Board, neighborhood: int):
+        """
+        Python implementation of the neighbor algorithm described in the paper
+        """
         gt = self.og_board.get_group_board_2D()
         indices = list(range(81))
         delta_op = []
@@ -194,7 +202,12 @@ class HybridSolver():
                 delta_op.append((rc, rand.choice(gt[i//9][i%9])))
         return delta_op
 
+    
+    
     def crossover(self, population):
+        """
+        Implements crossover as defined in the paper
+        """
         # print(rand.randint(0,len(population)))
         indices = list(range(len(population)))
         pairs = [(indices.pop(rand.randint(0, len(indices) - 1)), indices.pop(rand.randint(0, len(indices) - 1))) for i in range(len(population) // 2)]
@@ -212,8 +225,11 @@ class HybridSolver():
             population.append(Board(board=n_s1))
             population.append(Board(board=n_s2))
 
-
+    
     def generate_population(self, pop_size):
+        """
+        Creates a population by picking random children from the current group table
+        """
         population = []
         for i in range(self.PARENT_POP_SIZE):
             # Generate random board from group table
@@ -225,7 +241,11 @@ class HybridSolver():
 
         return population
 
+    
     def get_rand_solution_from_gt(self, group_table):
+        """
+        Picks a random value from each of the cells that do not have fixed values to generate a random child solution from the gt
+        """
         new_sol = [ [0] * 9 for _ in range(9)]
         for row_idx, row in enumerate(group_table):
             for col_idx, col in enumerate(row):
@@ -243,6 +263,9 @@ class HybridSolver():
         return new_sol
 
     def fitness_function(self, board: Board):
+        """
+        Calculates the fitness of the board using the fitness function defined in the paper
+        """
         board_list = board.get_board_2D()
         # sub_grids = board.get_subgrids()
         col_counts = [{str(i+1): -1 for i in range(9)} for _ in range(9)]
@@ -260,79 +283,6 @@ class HybridSolver():
             fitness += sum([count ** 2 for count in col_counts[i].values()])
             fitness += sum([count ** 2 for count in row_counts[i].values()])
         fitness += sum([abs(count - 9) for count in tot_counts.values()])
-        # flattened_list = [item for sublist in board_list for item in sublist]
-        # for i in range(0, 9):
-        #     num = str(i+1)
-        #     fitness += (1 - col_counts[i])
-        # for j in range(1, 10):
-        #     for i in range(0, 9):
-        #         # print( ((1-board_list[i].count(f"{j}")) ** 2))
-        #         fitness += ((1-board_list[i].count(f"{j}")) ** 2)
-        #         col = [item[i] for item in board_list]
-        #         fitness += ((1-col.count(f"{j}")) ** 2)
-        #         # print(((1-col.count(f"{j}")) ** 2))
-        #         fitness += ((1-sub_grids[i].count(f"{j}")) ** 2)
-        #         # print(((1-sub_grids[i].count(f"{j}")) ** 2))
-        #     fitness += abs(flattened_list.count(f"{i}")-9)
-            # print(abs(flattened_list.count(f"{i}")-9))
-        # fitness -= 27
+        
         return fitness
-
-    # def check_all_blocks(self, num, board):
-    #     val = 0
-    #     for i in range(0,9):
-    #         for j in range(0,9):
-    #             if board[i//3 + j%3][3*(i%3) + j//3] == num:
-    #                 val += 1
-    #     return val
-
-    # def make_group_table(self):
-    #     for row_idx, i in enumerate(self.board):
-    #         possibilities = [p for p in range(1,10)]
-    #         for col_idx, j in enumerate(i):
-    #              if j == 0:
-    #                 new_list = list(set(possibilities)
-    #                         .difference(self.row_vals(row_idx, col_idx))
-    #                         .difference(self.col_vals(row_idx, col_idx))
-    #                         .difference(self.block_vals(row_idx, col_idx)))
-    #                 self.group_table[row_idx][col_idx] = new_list
-    
-    # def row_vals(self, row, col, board):
-    #     return set([val for val in board[row] if val != 0])
-
-    # def col_vals(self, row, col, board):
-    #     return set([row[col] for row in board if row[col] != 0])
-
-    # def block_vals(self, row, col, board):
-    #     start_row = 3*(row//3)
-    #     start_col = 3*(col//3)
-    #     vals = []
-    #     for i in range(start_row, start_row+3):
-    #         vals.extend([j for j in board[i][start_col:start_col+3] if j != 0])
-    #     return set(vals)
-
-
-
-
-    # def print_board(self):
-    #     print("BOARD:")
-    #     for i, line in enumerate(self.board):
-    #         for j, val in enumerate(line):
-    #             if j%3 == 0 and j != 0:
-    #                 print(" || ", end="")
-    #             print(val, end="")
-    #         print()
-    #         if (i+1)%3 == 0 and i != 8:
-    #             print("-----------------\n-----------------")
-    
-    # def print_group_table(self):
-    #     max_len = max([len(str(val)) for row in range(len(self.group_table)) for val in self.group_table[row]])
-    #     for i, line in enumerate(self.group_table):
-    #         for j, val in enumerate(line):
-    #             print(str(val).ljust(max_len + 1, " "), end="")
-    #         if (i+1)%3 == 0:
-    #             print()
-    #         print()
-
-# Solve = GeneticSolver()
 
