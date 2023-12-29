@@ -20,7 +20,7 @@ While we accomplished our initial goal of comparing a standard algorithm against
 It should be noted that some of these algorithms are effectively useless by themselves, as they get caught in local minima. To avoid this problem, we use probabilistic algorithms like simulated annealing to bump the search state into a solvable path. We discuss this further in our paper.
 ### Paper
 Our research mostly discusses the differences between traditional solutions and our main alternative algorithm, genetic search, but there is also discussion of other algorithms and how they compare.
-[Comparison of Non-Deterministic Sudoku Algorithms](comparison_of_nondterministic_algorithms.pdf)
+[Comparison of Non-Deterministic Sudoku Algorithms](comparison_of_nondeterministic_algorithms.pdf)
 ## Installation
 To use this project, you'll need a Python version > 3.6. \
 You can clone the project using `git clone https://github.com/TheDeafOne/AlphaSudoku.git` \
