@@ -8,7 +8,7 @@ AlphaSudoku is a research project that compares and visualizes algorithms for so
 
 ![An example Sudoku puzzle and the solution returned by the constraint solver](docs/csp-example.svg)
 
-*A puzzle and its verified CSP solution, rendered from the solver's output rather than captured from the web interface. Original clues are dark; added values are blue.*
+*An example puzzle and its CSP solution. Given clues are dark; solved values are blue.*
 
 Our hope is that by applying these algorithms in a practical setting and visualizing the process, others will be able to better use them elsewhere.
 
@@ -27,7 +27,7 @@ These approaches have different costs and tradeoffs. Probabilistic methods such 
 Our research mostly discusses the differences between traditional solutions and our main alternative algorithm, genetic search, but there is also discussion of other algorithms and how they compare.
 [Comparison of Non-Deterministic Sudoku Algorithms](comparison_of_nondeterministic_algorithms.pdf)
 ## Installation
-Use Python 3.10 or newer. The constraint solver and Flask page were checked with Python 3.12.
+Use Python 3.10 or newer.
 
 ```sh
 git clone https://github.com/TheDeafOne/AlphaSudoku.git
