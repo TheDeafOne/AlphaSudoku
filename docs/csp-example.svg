@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="590" viewBox="0 0 1000 590" role="img" aria-labelledby="title desc">
+<title id="title">AlphaSudoku: a puzzle and its CSP solution</title>
+<desc id="desc">A Sudoku puzzle and its constraint solver solution. Given clues are dark and solved values are blue.</desc>
+<rect width="1000" height="590" fill="#fafaf8"/>
+<g font-family="Arial, sans-serif" fill="#202a35">
+<text x="58" y="46" font-size="28" font-weight="bold">AlphaSudoku</text>
+<text x="58" y="76" font-size="17" fill="#52606d">One puzzle, solved with constraint propagation and backtracking.</text>
+<text x="58" y="117" font-size="20" font-weight="bold">Puzzle</text>
+<rect x="58" y="136" width="378" height="378" fill="white"/>
+<path d="M58 136V514 M58 136H436" stroke="#334155" stroke-width="2.5"/>
+<path d="M100 136V514 M58 178H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M142 136V514 M58 220H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M184 136V514 M58 262H436" stroke="#334155" stroke-width="2.5"/>
+<path d="M226 136V514 M58 304H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M268 136V514 M58 346H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M310 136V514 M58 388H436" stroke="#334155" stroke-width="2.5"/>
+<path d="M352 136V514 M58 430H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M394 136V514 M58 472H436" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M436 136V514 M58 514H436" stroke="#334155" stroke-width="2.5"/>
+<text x="79" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="121" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="247" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="79" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="205" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="247" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="289" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="121" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="163" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="373" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="79" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="247" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="415" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="79" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">4</text>
+<text x="205" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="289" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="415" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="79" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="247" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">2</text>
+<text x="415" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="121" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="331" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">2</text>
+<text x="373" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="205" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">4</text>
+<text x="247" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="289" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="415" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="247" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="373" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="415" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="558" y="117" font-size="20" font-weight="bold">CSP solution</text>
+<rect x="558" y="136" width="378" height="378" fill="white"/>
+<path d="M558 136V514 M558 136H936" stroke="#334155" stroke-width="2.5"/>
+<path d="M600 136V514 M558 178H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M642 136V514 M558 220H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M684 136V514 M558 262H936" stroke="#334155" stroke-width="2.5"/>
+<path d="M726 136V514 M558 304H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M768 136V514 M558 346H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M810 136V514 M558 388H936" stroke="#334155" stroke-width="2.5"/>
+<path d="M852 136V514 M558 430H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M894 136V514 M558 472H936" stroke="#cbd5e1" stroke-width="0.7"/>
+<path d="M936 136V514 M558 514H936" stroke="#334155" stroke-width="2.5"/>
+<text x="579" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="621" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="663" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="705" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">6</text>
+<text x="747" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="789" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">8</text>
+<text x="831" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">9</text>
+<text x="873" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="915" y="158" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="579" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="621" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="663" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="705" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="747" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="789" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="831" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="873" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="915" y="200" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">8</text>
+<text x="579" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="621" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="663" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="705" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="747" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="789" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="831" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="873" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="915" y="242" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="579" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="621" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="663" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">9</text>
+<text x="705" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="747" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="789" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="831" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="873" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="915" y="284" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="579" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">4</text>
+<text x="621" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="663" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">6</text>
+<text x="705" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="747" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="789" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">3</text>
+<text x="831" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="873" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">9</text>
+<text x="915" y="326" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="579" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="621" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="663" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="705" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">9</text>
+<text x="747" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">2</text>
+<text x="789" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="831" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">8</text>
+<text x="873" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="915" y="368" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="579" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">9</text>
+<text x="621" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">6</text>
+<text x="663" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="705" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="747" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="789" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="831" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">2</text>
+<text x="873" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="915" y="410" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="579" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="621" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">8</text>
+<text x="663" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">7</text>
+<text x="705" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">4</text>
+<text x="747" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">1</text>
+<text x="789" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="831" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">6</text>
+<text x="873" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="915" y="452" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">5</text>
+<text x="579" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">3</text>
+<text x="621" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">4</text>
+<text x="663" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">5</text>
+<text x="705" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">2</text>
+<text x="747" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">8</text>
+<text x="789" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">6</text>
+<text x="831" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#2463a9">1</text>
+<text x="873" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">7</text>
+<text x="915" y="494" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="#202a35">9</text>
+<text x="58" y="552" font-size="16" fill="#52606d">CSP solution. Dark: given clues. Blue: solved values.</text>
+</g></svg>

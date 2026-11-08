@@ -1,10 +1,15 @@
 # AlphaSudoku
-AlphaSudoku is a research project in an effort to analyze and display different algorithms that can solve Sudoku. While traditionally solved with backtracking, because of Sudoku's simplicity, it is possible to reasonably use algorithms such as genetic or harmony search. We explore these and combine them with a variety of other algorithms, creating a full display of classical AI search methods. Some of these algorithms are:
+AlphaSudoku is a research project that compares and visualizes algorithms for solving Sudoku. While Sudoku is traditionally solved with backtracking, its familiar rules also make it a useful setting for exploring genetic search and simulated annealing. We combine these with other algorithms to compare deterministic and nondeterministic approaches. Some of these algorithms are:
 * Backtracking
 * Constraint Satisfaction
 * AC-3
 * Genetic search
 * Simulated annealing
+
+![An example Sudoku puzzle and the solution returned by the constraint solver](docs/csp-example.svg)
+
+*An example puzzle and its CSP solution. Given clues are dark; solved values are blue.*
+
 Our hope is that by applying these algorithms in a practical setting and visualizing the process, others will be able to better use them elsewhere.
 
 ### A Note on Tech
@@ -17,20 +22,34 @@ While we accomplished our initial goal of comparing a standard algorithm against
 - Iterative deepening
 - Uniform-cost search
 
-It should be noted that some of these algorithms are effectively useless by themselves, as they get caught in local minima. To avoid this problem, we use probabilistic algorithms like simulated annealing to bump the search state into a solvable path. We discuss this further in our paper.
+These approaches have different costs and tradeoffs. Probabilistic methods such as simulated annealing can help a search move away from a local minimum. We discuss the approaches used in this project further in our paper.
 ### Paper
 Our research mostly discusses the differences between traditional solutions and our main alternative algorithm, genetic search, but there is also discussion of other algorithms and how they compare.
 [Comparison of Non-Deterministic Sudoku Algorithms](comparison_of_nondeterministic_algorithms.pdf)
 ## Installation
-To use this project, you'll need a Python version > 3.6. \
-You can clone the project using `git clone https://github.com/TheDeafOne/AlphaSudoku.git` \
-and install the dependencies using `python -m pip install -r requirements.txt` \
-from there you can runn the `app.py` file with `python ./app.py`
+Use Python 3.10 or newer.
+
+```sh
+git clone https://github.com/TheDeafOne/AlphaSudoku.git
+cd AlphaSudoku
+python -m venv .venv
+```
+
+Activate the environment with `source .venv/bin/activate` on macOS/Linux, or `.venv\Scripts\Activate.ps1` in Windows PowerShell. Then install and run:
+
+```sh
+python -m pip install -r requirements.txt
+python app.py
+```
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Run from the repository root so the board-index files in `data/board_indexes` can be found.
 
 ## Using the Project
-Theres a lot going on here, but the logic of the project can generally be broken down into three parts:
+Enter the puzzle's clues using 1–9 and leave empty cells as 0. Choose **Genetic** or **Backtracking**, select **Submit Board**, then **Run Board**. The Genetic option uses the hybrid solver; Backtracking uses constraint propagation and search.
+
+The logic of the project can generally be broken down into three parts:
 1. Board Logic
 2. Algorithms
 3. Visualization
 
-Fittingly, board logic and algorithms can be found in their respective directories, but it should be noted that visualization is done through Flask. Because of this, most of the logic pertaining to it is in app.py, templates, and static, but there is some references to it throughout board logic and algorithms. This is so that the program can be run through both a console and a web application.
+Board logic and algorithms can be found in [board_logic](board_logic) and [algorithms](algorithms). Visualization is done through Flask, with most of that logic in [app.py](app.py), [templates](templates), and [static](static). The board and solver classes can also be used directly from Python.
